@@ -1,4 +1,4 @@
-# Artisyn.io
+# Artisyn.io Backend API
 
 ## Find Artisans Near You
 
