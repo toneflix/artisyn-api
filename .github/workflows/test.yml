@@ -52,8 +52,14 @@ jobs:
           echo "Deleting migration directories except 20250423000000_initial_schema"
           find prisma/migrations -type d ! -name '20250423000000_initial_schema' -exec rm -rf {} +
 
-      - name: Initialize Data
-        run: pnpm initialize
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run Migrations
+        run: npx prisma migrate dev
+
+      - name: Seed the database
+        run: npx ts-node src/database/seed.ts
 
       - name: Run Tests
         run: pnpm run test
