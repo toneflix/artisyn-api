@@ -4,6 +4,8 @@
 
 Artisyn is a decentralised protocol built on Starknet that connects local artisans with users through community-curated listings. Our platform creates a trustless ecosystem where skilled workers can be discovered, verified, and compensated without relying on centralised intermediaries.
 
+[![Run Tests](https://github.com/toneflix/artisyn-api/actions/workflows/test.yml/badge.svg)](https://github.com/toneflix/artisyn-api/actions/workflows/test.yml)
+
 ## Project
 
 - 📱 [App](https://github.com/toneflix/artisyn.io)
