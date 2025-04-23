@@ -1,0 +1,228 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enum for user roles
+enum UserRole {
+  USER
+  CURATOR
+  ADMIN
+}
+
+// Enum for curator verification status
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+// Enum for artisan type
+enum ArtisanType {
+  PERSON
+  BUSINESS
+}
+
+// User model for both regular users and curators
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  walletAddress String?  @unique
+  firstName     String
+  lastName      String
+  role          UserRole @default(USER)
+  avatar        String?
+  bio           String?
+  phone         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  curator         Curator?
+  artisans        Artisan[]
+  reviews         Review[]  @relation("ReviewAuthor")
+  receivedReviews Review[]  @relation("ReviewTarget")
+  sentTips        Tip[]     @relation("TipSender")
+  receivedTips    Tip[]     @relation("TipReceiver")
+  location        Location? @relation(fields: [locationId], references: [id])
+  locationId      String?
+
+  @@index([email])
+  @@index([walletAddress])
+  @@index([role])
+}
+
+// Curator profile model
+model Curator {
+  id                 String             @id @default(uuid())
+  userId             String             @unique
+  verificationStatus VerificationStatus @default(PENDING)
+  specialties        String[]
+  experience         Int // Years of experience
+  portfolio          String? // URL to portfolio
+  certificates       String[] // URLs to certificates
+  verifiedAt         DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([verificationStatus])
+}
+
+// Category model
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  icon        String? // URL to category icon
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  subcategories Subcategory[]
+  artisans      Artisan[]
+
+  @@index([name])
+}
+
+// Subcategory model
+model Subcategory {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  categoryId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  category Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  artisans Artisan[]
+
+  @@unique([name, categoryId])
+  @@index([categoryId])
+}
+
+// Artisan model
+model Artisan {
+  id            String   @id @default(uuid())
+  name          String
+  email         String?
+  phone         String?
+  type          ArtisanType @default(PERSON)
+  description   String
+  price         Float? // Optional price if fixed
+  priceRange    Json? // Min and max price if variable
+  images        String[] // URLs to artisan images
+  curatorId     String // User ID of the curator
+  categoryId    String
+  subcategoryId String?
+  locationId    String
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  curator     User         @relation(fields: [curatorId], references: [id], onDelete: Cascade)
+  category    Category     @relation(fields: [categoryId], references: [id])
+  subcategory Subcategory? @relation(fields: [subcategoryId], references: [id])
+  location    Location     @relation(fields: [locationId], references: [id])
+  reviews     Review[]
+  tips        Tip[]
+
+  @@index([curatorId])
+  @@index([categoryId])
+  @@index([subcategoryId])
+  @@index([locationId])
+  @@index([isActive])
+}
+
+// Location model for geospatial data
+model Location {
+  id         String   @id @default(uuid())
+  address    String?
+  city       String
+  state      String
+  country    String
+  postalCode String?
+  latitude   Float
+  longitude  Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  users    User[]
+  artisans Artisan[]
+
+  @@index([city])
+  @@index([state])
+  @@index([country])
+  @@index([latitude, longitude])
+}
+
+// Review model
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int // 1-5 star rating
+  comment   String?
+  authorId  String // User who wrote the review
+  targetId  String // User who received the review
+  artisanId String? // Optional artisan reference
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  author  User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  target  User     @relation("ReviewTarget", fields: [targetId], references: [id], onDelete: Cascade)
+  artisan Artisan? @relation(fields: [artisanId], references: [id], onDelete: SetNull)
+
+  @@index([authorId])
+  @@index([targetId])
+  @@index([artisanId])
+  @@index([rating])
+}
+
+// Enum for tip status
+enum TipStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+// Tip model for payments between users
+model Tip {
+  id         String    @id @default(uuid())
+  amount     Float
+  currency   String    @default("ETH")
+  message    String?
+  status     TipStatus @default(PENDING)
+  senderId   String // User who sent the tip
+  receiverId String // User who received the tip
+  artisanId  String? // Optional artisan reference
+  txHash     String? // Transaction hash on blockchain
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  sender   User     @relation("TipSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User     @relation("TipReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  artisan  Artisan? @relation(fields: [artisanId], references: [id], onDelete: SetNull)
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([artisanId])
+  @@index([status])
+  @@index([txHash])
+}
