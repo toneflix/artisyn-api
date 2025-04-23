@@ -47,6 +47,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Delete all migrations except the initial schema
+        run: |
+          echo "Deleting migration directories except 20250423000000_initial_schema"
+          find prisma/migrations -type d ! -name '20250423000000_initial_schema' -exec rm -rf {} +
+
       - name: Initialize Data
         run: pnpm initialize
 
