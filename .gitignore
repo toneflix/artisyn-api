@@ -23,8 +23,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # Package Managers
-yarn-lock*
-package-lock*
+*.lock
+.yarn
 
 # Testing
 coverage/

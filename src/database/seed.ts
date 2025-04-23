@@ -21,6 +21,7 @@ async function main () {
 
   // Create admin user
   const adminPassword = await argon2.hash('admin123');
+
   const admin = await prisma.user.create({
     data: {
       email: 'admin@artisyn.io',
