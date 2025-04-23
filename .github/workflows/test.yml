@@ -53,7 +53,7 @@ jobs:
         run: pnpm run prisma:generate
 
       - name: Run Migrations
-        run: pnpm migrate:reset --force
+        run: pnpm migrate:reset
 
       - name: Seed Database
         run: pnpm run seed
