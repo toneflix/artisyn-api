@@ -48,7 +48,7 @@ jobs:
         run: npm run prisma:generate
 
       - name: Run Migrations
-        run: npm migrate
+        run: npm run migrate
 
       - name: Seed Database
         run: npm run seed
