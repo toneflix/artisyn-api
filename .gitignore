@@ -25,7 +25,6 @@ yarn-error.log*
 # Package Managers
 yarn-lock*
 package-lock*
-pnpm-lock*
 
 # Testing
 coverage/
