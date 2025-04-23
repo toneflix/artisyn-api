@@ -12,7 +12,8 @@
     "migrate": "prisma migrate dev",
     "migrate:reset": "prisma migrate reset",
     "prisma:generate": "prisma generate",
-    "seed": "ts-node src/database/seed.ts"
+    "seed": "ts-node src/database/seed.ts",
+    "initialize": "prisma generate && prisma migrate dev && ts-node src/database/seed.ts"
   },
   "repository": {
     "type": "git",

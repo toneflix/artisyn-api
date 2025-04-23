@@ -11,7 +11,32 @@ Artisyn is a decentralised protocol built on Starknet that connects local artisa
 - 📝 [Smart Contracts](https://github.com/toneflix/artisyn-contracts)
 
 ## Documentation
+
 - [Read Documentation](specs)
+
+## Install the dependencies
+
+```bash
+pnpm install
+```
+
+## Initialize
+
+```bash
+pnpm initialize
+```
+
+### Start the app in development mode (hot-code reloading, error reporting, etc.)
+
+```bash
+pnpm dev
+```
+
+## Run Tests
+
+```bash
+pnpm test
+```
 
 ## Contribution Guide
 
