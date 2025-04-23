@@ -18,7 +18,7 @@ Artisyn is a decentralised protocol built on Starknet that connects local artisa
 
 ## Install the dependencies
 
-```bash
+```bashs
 pnpm install
 ```
 
