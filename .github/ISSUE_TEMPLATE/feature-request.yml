@@ -1,65 +1,64 @@
-name: 🚀 Pull Request
-description: Submit a new feature, fix, or improvement
-title: 'PR: '
-labels: ['pull-request']
+name: 🚀 Feature or Task Request
+description: Suggest a new feature or backend implementation task
+title: 'Feature: '
+labels: ['enhancement']
 assignees: []
 
 body:
   - type: markdown
     attributes:
       value: |
-        ## 🔍 Pull Request Summary
-        Provide a brief overview of what this PR does.
+        ## 📌 Issue Summary
+        Briefly describe the task or feature being proposed.
 
   - type: textarea
     id: summary
     attributes:
       label: Summary
-      placeholder: What does this PR implement or change?
+      placeholder: Describe the task or feature clearly
     validations:
       required: true
 
   - type: markdown
     attributes:
       value: |
-        ## 📋 Implemented Actions
-        List what you actually did in this PR. Use the button below to add each action or change you made.
+        ## 🛠 Proposed Actions
+        List individual steps needed to complete this task.
 
   - type: dynamic
     id: actions
     attributes:
-      label: Implemented Steps
-      add_button_label: Add Step
+      label: Proposed Action Steps
+      add_button_label: Add Action
       fields:
         - type: input
-          label: Step
-          placeholder: e.g., Added validation to listing model
+          label: Action
+          placeholder: e.g., Design User model schema
     validations:
       required: true
 
   - type: markdown
     attributes:
       value: |
-        ## ✅ Pre-Submission Checklist
-        Please confirm the following before submitting:
+        ## 📏 Guidelines
+        Follow these coding standards:
 
   - type: checkboxes
-    id: checklist
+    id: guidelines
     attributes:
-      label: Confirm the following:
+      label: Coding Standards
       options:
-        - label: I followed the coding guidelines defined in the project
-        - label: I wrote unit/integration tests where applicable
-        - label: I tested the feature manually
-        - label: I’ve reviewed my changes for security, logic, and edge cases
-        - label: I’ve added relevant documentation or comments
-        - label: This PR references an open issue (if applicable)
+        - label: Use TypeScript for type safety
+        - label: Implement proper indexing for performance
+        - label: Include comprehensive validation rules
+        - label: Write unit tests for all models
+        - label: Document schema with diagrams or inline comments
 
   - type: input
-    id: issue
+    id: timeframe
     attributes:
-      label: Related Issue #
-      placeholder: e.g., #1
+      label: Estimated Timeframe
+      placeholder: e.g., 5 days
     validations:
       required: false
 
@@ -67,6 +66,6 @@ body:
     id: notes
     attributes:
       label: Additional Notes
-      placeholder: Mention anything reviewers should know before merging
+      placeholder: Mention dependencies, blockers, or any other info
     validations:
       required: false
