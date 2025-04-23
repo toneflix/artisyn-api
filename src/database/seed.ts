@@ -1,15 +1,16 @@
 import { PrismaClient, UserRole, VerificationStatus } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+
+import argon2 from 'argon2';
 
 const prisma = new PrismaClient();
 
-async function main() {
+async function main () {
   console.log('Starting seed...');
 
   // Clear existing data
   await prisma.tip.deleteMany();
   await prisma.review.deleteMany();
-  await prisma.listing.deleteMany();
+  await prisma.artisan.deleteMany();
   await prisma.subcategory.deleteMany();
   await prisma.category.deleteMany();
   await prisma.curator.deleteMany();
@@ -19,7 +20,7 @@ async function main() {
   console.log('Cleared existing data');
 
   // Create admin user
-  const adminPassword = await bcrypt.hash('admin123', 10);
+  const adminPassword = await argon2.hash('admin123');
   const admin = await prisma.user.create({
     data: {
       email: 'admin@artisyn.io',
@@ -188,7 +189,7 @@ async function main() {
   console.log('Created locations');
 
   // Create regular users
-  const userPassword = await bcrypt.hash('password123', 10);
+  const userPassword = await argon2.hash('password123');
   const users = await Promise.all([
     prisma.user.create({
       data: {
@@ -318,11 +319,14 @@ async function main() {
 
   console.log('Created curator profiles');
 
-  // Create listings
-  const listings = await Promise.all([
-    prisma.listing.create({
+  // Create artisans
+  const artisans = await Promise.all([
+    prisma.artisan.create({
       data: {
-        title: 'Custom Wooden Dining Table',
+        name: 'Artisan 1',
+        type: 'PERSON',
+        phone: '+2349012345678',
+        email: 'artisan1@example.com',
         description: 'Handcrafted dining table made from reclaimed oak. Can be customized to your specifications.',
         price: 1200,
         images: [
@@ -335,9 +339,12 @@ async function main() {
         locationId: locations[0].id,
       },
     }),
-    prisma.listing.create({
+    prisma.artisan.create({
       data: {
-        title: 'Handwoven Wool Blanket',
+        name: 'Artisan 2',
+        type: 'PERSON',
+        phone: '+2349012345679',
+        email: 'artisan2@example.com',
         description: 'Cozy blanket made from 100% natural wool, handwoven using traditional techniques.',
         price: 250,
         images: [
@@ -350,9 +357,12 @@ async function main() {
         locationId: locations[1].id,
       },
     }),
-    prisma.listing.create({
+    prisma.artisan.create({
       data: {
-        title: 'Ceramic Dinner Set',
+        name: 'Artisan 3',
+        type: 'PERSON',
+        phone: '+2349012345610',
+        email: 'artisan3@example.com',
         description: 'Complete dinner set including plates, bowls, and cups. Each piece is handmade and glazed.',
         priceRange: { min: 180, max: 350 },
         images: [
@@ -367,7 +377,7 @@ async function main() {
     }),
   ]);
 
-  console.log('Created listings');
+  console.log('Created artisans');
 
   // Create reviews
   const reviews = await Promise.all([
@@ -377,7 +387,7 @@ async function main() {
         comment: 'Absolutely beautiful work! The table is exactly what I wanted.',
         authorId: users[0].id,
         targetId: curatorUsers[0].id,
-        listingId: listings[0].id,
+        artisanId: artisans[0].id,
       },
     }),
     prisma.review.create({
@@ -386,7 +396,7 @@ async function main() {
         comment: 'The blanket is very cozy and well-made. Shipping was a bit slow.',
         authorId: users[1].id,
         targetId: curatorUsers[1].id,
-        listingId: listings[1].id,
+        artisanId: artisans[1].id,
       },
     }),
   ]);
@@ -403,7 +413,7 @@ async function main() {
         status: 'COMPLETED',
         senderId: users[0].id,
         receiverId: curatorUsers[0].id,
-        listingId: listings[0].id,
+        artisanId: artisans[0].id,
         txHash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
       },
     }),
@@ -415,7 +425,7 @@ async function main() {
         status: 'COMPLETED',
         senderId: users[1].id,
         receiverId: curatorUsers[1].id,
-        listingId: listings[1].id,
+        artisanId: artisans[1].id,
         txHash: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
       },
     }),

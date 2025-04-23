@@ -2,27 +2,33 @@
 
 ## Overview
 
-This document outlines the database schema for the Artisyn platform, which connects local artisans with users through community-curated listings.
+This document outlines the database schema for the Artisyn platform, which connects local artisans with users through community-curated artisans.
 
 ## Entity Relationship Diagram
 
 ```
-+----------------+       +----------------+       +----------------+
-|      User      |       |    Curator     |       |    Listing     |
-+----------------+       +----------------+       +----------------+
-| id             |<----->| id             |       | id             |
-| email          |       | userId         |       | title          |
-| password       |       | verificationSt.|       | description    |
-| walletAddress  |       | specialties    |       | price          |
-| firstName      |       | experience     |       | priceRange     |
-| lastName       |       | portfolio      |       | images         |
-| role           |       | certificates   |<------| curatorId      |
-| avatar         |       | verifiedAt     |       | categoryId     |
-| bio            |       | createdAt      |       | subcategoryId  |
-| phone          |       | updatedAt      |       | locationId     |
-| createdAt      |       +----------------+       | isActive       |
-| updatedAt      |                                | createdAt      |
-+----------------+                                | updatedAt      |
++----------------+
+|      User      |
++----------------+       +----------------+
+| id             |<----->|    Curator     |       +----------------+
+| password       |       +----------------+       |    Artisan     |
+| walletAddress  |       | userId         |       +----------------+
+| firstName      |       | id             |       | id             |
+| lastName       |       | userId         |       | name           |
+| role           |       | verificationSt.|       | email          |
+| avatar         |       | specialties    |       | phone          |
+| bio            |       | experience     |       | type           |
+| phone          |       | portfolio      |       | description    |
+| createdAt      |       | certificates   |<------| price          |
+| updatedAt      |       | verifiedAt     |       | priceRange     |
++----------------+       | createdAt      |       | images         |
+       |                 | updatedAt      |       | curatorId      |
+       |                 +----------------+       | categoryId     |
+       |                                          | subcategoryId  |
+       |                                          | locationId     |
+       |                                          | isActive       |
+       |                                          | createdAt      |
+       |                                          | updatedAt      |
        |                                          +----------------+
        |                                                  |
        |                                                  |
@@ -52,9 +58,9 @@ This document outlines the database schema for the Artisyn platform, which conne
 | comment        |       | currency       |
 | authorId       |       | message        |
 | targetId       |       | status         |
-| listingId      |       | senderId       |
+| artisanId      |       | senderId       |
 | createdAt      |       | receiverId     |
-| updatedAt      |       | listingId      |
+| updatedAt      |       | artisanId      |
 +----------------+       | txHash         |
                          | createdAt      |
                          | updatedAt      |
@@ -97,7 +103,7 @@ The Curator model extends the User model with curator-specific information.
 
 ### Category
 
-The Category model represents the main categories for listings.
+The Category model represents the main categories for artisans.
 
 - **id**: Unique identifier (UUID)
 - **name**: Category name (unique)
@@ -117,27 +123,29 @@ The Subcategory model represents subcategories within main categories.
 - **createdAt**: Timestamp of creation
 - **updatedAt**: Timestamp of last update
 
-### Listing
+### Artisan
 
-The Listing model represents artisan services or products.
+The Artisan model represents artisan services or products.
 
 - **id**: Unique identifier (UUID)
-- **title**: Listing title
+- **name**: Artisan name
+- **phone**: Artisan phone number
+- **email**: Artisan email address
 - **description**: Detailed description
 - **price**: Fixed price (optional)
 - **priceRange**: Min and max price for variable pricing (optional)
-- **images**: Array of URLs to listing images
+- **images**: Array of URLs to artisan images
 - **curatorId**: Reference to User model (curator)
 - **categoryId**: Reference to Category model
 - **subcategoryId**: Reference to Subcategory model (optional)
 - **locationId**: Reference to Location model
-- **isActive**: Whether the listing is active
+- **isActive**: Whether the artisan is active
 - **createdAt**: Timestamp of creation
 - **updatedAt**: Timestamp of last update
 
 ### Location
 
-The Location model stores geospatial data for users and listings.
+The Location model stores geospatial data for users and artisans.
 
 - **id**: Unique identifier (UUID)
 - **address**: Street address (optional)
@@ -152,14 +160,14 @@ The Location model stores geospatial data for users and listings.
 
 ### Review
 
-The Review model represents user reviews for curators and listings.
+The Review model represents user reviews for curators and artisans.
 
 - **id**: Unique identifier (UUID)
 - **rating**: Numeric rating (1-5)
 - **comment**: Review text (optional)
 - **authorId**: Reference to User model (reviewer)
 - **targetId**: Reference to User model (reviewed curator)
-- **listingId**: Reference to Listing model (optional)
+- **artisanId**: Reference to Artisan model (optional)
 - **createdAt**: Timestamp of creation
 - **updatedAt**: Timestamp of last update
 
@@ -174,7 +182,7 @@ The Tip model represents payments between users.
 - **status**: Tip status (PENDING, COMPLETED, CANCELLED, REFUNDED)
 - **senderId**: Reference to User model (sender)
 - **receiverId**: Reference to User model (receiver)
-- **listingId**: Reference to Listing model (optional)
+- **artisanId**: Reference to Artisan model (optional)
 - **txHash**: Blockchain transaction hash (optional)
 - **createdAt**: Timestamp of creation
 - **updatedAt**: Timestamp of last update
@@ -182,18 +190,18 @@ The Tip model represents payments between users.
 ## Relationships
 
 - **User-Curator**: One-to-one relationship. A user can have one curator profile.
-- **User-Listing**: One-to-many relationship. A curator can have multiple listings.
+- **User-Artisan**: One-to-many relationship. A curator can have multiple artisans.
 - **Category-Subcategory**: One-to-many relationship. A category can have multiple subcategories.
-- **Category-Listing**: One-to-many relationship. A category can have multiple listings.
-- **Subcategory-Listing**: One-to-many relationship. A subcategory can have multiple listings.
+- **Category-Artisan**: One-to-many relationship. A category can have multiple artisans.
+- **Subcategory-Artisan**: One-to-many relationship. A subcategory can have multiple artisans.
 - **Location-User**: One-to-many relationship. A location can be associated with multiple users.
-- **Location-Listing**: One-to-many relationship. A location can have multiple listings.
+- **Location-Artisan**: One-to-many relationship. A location can have multiple artisans.
 - **User-Review (author)**: One-to-many relationship. A user can write multiple reviews.
 - **User-Review (target)**: One-to-many relationship. A user can receive multiple reviews.
-- **Listing-Review**: One-to-many relationship. A listing can have multiple reviews.
+- **Artisan-Review**: One-to-many relationship. A artisan can have multiple reviews.
 - **User-Tip (sender)**: One-to-many relationship. A user can send multiple tips.
 - **User-Tip (receiver)**: One-to-many relationship. A user can receive multiple tips.
-- **Listing-Tip**: One-to-many relationship. A listing can have multiple tips.
+- **Artisan-Tip**: One-to-many relationship. A artisan can have multiple tips.
 
 ## Indexing Strategy
 
@@ -203,7 +211,7 @@ The following fields are indexed to improve query performance:
 - **Curator**: userId, verificationStatus
 - **Category**: name
 - **Subcategory**: categoryId, name+categoryId (unique)
-- **Listing**: curatorId, categoryId, subcategoryId, locationId, isActive
+- **Artisan**: curatorId, categoryId, subcategoryId, locationId, isActive
 - **Location**: city, state, country, latitude+longitude
-- **Review**: authorId, targetId, listingId, rating
-- **Tip**: senderId, receiverId, listingId, status, txHash
+- **Review**: authorId, targetId, artisanId, rating
+- **Tip**: senderId, receiverId, artisanId, status, txHash

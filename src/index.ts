@@ -1,8 +1,8 @@
-import express from 'express';
-import cors from 'cors';
-import morgan from 'morgan';
-import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import logger from 'pino-http';
 
 // Load environment variables
 dotenv.config();
@@ -17,7 +17,7 @@ const prisma = new PrismaClient();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(logger())
 
 // Basic route for testing
 app.get('/', (req, res) => {

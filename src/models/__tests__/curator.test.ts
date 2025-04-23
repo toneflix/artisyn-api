@@ -1,5 +1,6 @@
 import { PrismaClient, UserRole, VerificationStatus } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+
+import argon2 from 'argon2';
 
 // Create a new instance of PrismaClient for testing
 const prisma = new PrismaClient();
@@ -11,7 +12,7 @@ describe('Curator Model', () => {
   beforeAll(async () => {
     const userData = {
       email: 'curator-test@example.com',
-      password: await bcrypt.hash('password123', 10),
+      password: await argon2.hash('password123'),
       firstName: 'Curator',
       lastName: 'Test',
       role: UserRole.CURATOR,
@@ -94,7 +95,7 @@ describe('Curator Model', () => {
     // Create a new user and curator for this test
     const userData = {
       email: 'curator-delete@example.com',
-      password: await bcrypt.hash('password123', 10),
+      password: await argon2.hash('password123'),
       firstName: 'Delete',
       lastName: 'Test',
       role: UserRole.CURATOR,

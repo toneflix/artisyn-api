@@ -1,5 +1,6 @@
 import { PrismaClient, UserRole } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+
+import argon2 from 'argon2';
 
 // Create a new instance of PrismaClient for testing
 const prisma = new PrismaClient();
@@ -14,7 +15,7 @@ describe('User Model', () => {
   it('should create a new user', async () => {
     const userData = {
       email: 'test@example.com',
-      password: await bcrypt.hash('password123', 10),
+      password: await argon2.hash('password123'),
       firstName: 'Test',
       lastName: 'User',
       role: UserRole.USER,
@@ -34,7 +35,7 @@ describe('User Model', () => {
   it('should not allow duplicate emails', async () => {
     const userData = {
       email: 'duplicate@example.com',
-      password: await bcrypt.hash('password123', 10),
+      password: await argon2.hash('password123'),
       firstName: 'Duplicate',
       lastName: 'User',
       role: UserRole.USER,
@@ -54,7 +55,7 @@ describe('User Model', () => {
   it('should update a user', async () => {
     const userData = {
       email: 'update@example.com',
-      password: await bcrypt.hash('password123', 10),
+      password: await argon2.hash('password123'),
       firstName: 'Update',
       lastName: 'User',
       role: UserRole.USER,
@@ -79,7 +80,7 @@ describe('User Model', () => {
   it('should delete a user', async () => {
     const userData = {
       email: 'delete@example.com',
-      password: await bcrypt.hash('password123', 10),
+      password: await argon2.hash('password123'),
       firstName: 'Delete',
       lastName: 'User',
       role: UserRole.USER,

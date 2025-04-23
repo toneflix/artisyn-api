@@ -8,11 +8,11 @@ The data models are implemented using Prisma ORM with TypeScript for type safety
 
 - **User**: Represents both regular users (finders) and curators
 - **Curator**: Extends the User model with curator-specific information
-- **Category**: Main categories for listings
+- **Category**: Main categories for artisans
 - **Subcategory**: Subcategories within main categories
-- **Listing**: Artisan services or products
-- **Location**: Geospatial data for users and listings
-- **Review**: User reviews for curators and listings
+- **Artisan**: Artisan services or products
+- **Location**: Geospatial data for users and artisans
+- **Review**: User reviews for curators and artisans
 - **Tip**: Payments between users
 
 ## Directory Structure

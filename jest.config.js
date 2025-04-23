@@ -12,5 +12,5 @@ module.exports = {
     '!src/database/seed.ts',
   ],
   coverageReporters: ['text', 'lcov'],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  // setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 };

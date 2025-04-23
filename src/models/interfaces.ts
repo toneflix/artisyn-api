@@ -11,6 +11,11 @@ export enum VerificationStatus {
   REJECTED = 'REJECTED'
 }
 
+export enum ArtisanType {
+  PERSON = 'PERSON',
+  BUSINESS = 'BUSINESS'
+}
+
 export enum TipStatus {
   PENDING = 'PENDING',
   COMPLETED = 'COMPLETED',
@@ -70,9 +75,12 @@ export interface IPriceRange {
   max: number;
 }
 
-export interface IListing {
+export interface IArtisan {
   id: string;
-  title: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  type: ArtisanType;
   description: string;
   price?: number;
   priceRange?: IPriceRange;
@@ -105,7 +113,7 @@ export interface IReview {
   comment?: string;
   authorId: string;
   targetId: string;
-  listingId?: string;
+  artisanId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -118,7 +126,7 @@ export interface ITip {
   status: TipStatus;
   senderId: string;
   receiverId: string;
-  listingId?: string;
+  artisanId?: string;
   txHash?: string;
   createdAt: Date;
   updatedAt: Date;

@@ -7,6 +7,9 @@ CREATE TYPE "VerificationStatus" AS ENUM ('PENDING', 'VERIFIED', 'REJECTED');
 -- CreateEnum
 CREATE TYPE "TipStatus" AS ENUM ('PENDING', 'COMPLETED', 'CANCELLED', 'REFUNDED');
 
+-- CreateEnum
+CREATE TYPE "ArtisanType" AS ENUM ('PERSON', 'BUSINESS');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -66,9 +69,12 @@ CREATE TABLE "Subcategory" (
 );
 
 -- CreateTable
-CREATE TABLE "Listing" (
+CREATE TABLE "Artisan" (
     "id" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NULL DEFAULT NULL,
+    "phone" TEXT NULL DEFAULT NULL,
+    "type" "ArtisanType" NOT NULL DEFAULT 'PERSON',
     "description" TEXT NOT NULL,
     "price" DOUBLE PRECISION,
     "priceRange" JSONB,
@@ -81,7 +87,7 @@ CREATE TABLE "Listing" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Listing_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Artisan_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -107,7 +113,7 @@ CREATE TABLE "Review" (
     "comment" TEXT,
     "authorId" TEXT NOT NULL,
     "targetId" TEXT NOT NULL,
-    "listingId" TEXT,
+    "artisanId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -123,7 +129,7 @@ CREATE TABLE "Tip" (
     "status" "TipStatus" NOT NULL DEFAULT 'PENDING',
     "senderId" TEXT NOT NULL,
     "receiverId" TEXT NOT NULL,
-    "listingId" TEXT,
+    "artisanId" TEXT,
     "txHash" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -168,19 +174,19 @@ CREATE UNIQUE INDEX "Subcategory_name_categoryId_key" ON "Subcategory"("name", "
 CREATE INDEX "Subcategory_categoryId_idx" ON "Subcategory"("categoryId");
 
 -- CreateIndex
-CREATE INDEX "Listing_curatorId_idx" ON "Listing"("curatorId");
+CREATE INDEX "Artisan_curatorId_idx" ON "Artisan"("curatorId");
 
 -- CreateIndex
-CREATE INDEX "Listing_categoryId_idx" ON "Listing"("categoryId");
+CREATE INDEX "Artisan_categoryId_idx" ON "Artisan"("categoryId");
 
 -- CreateIndex
-CREATE INDEX "Listing_subcategoryId_idx" ON "Listing"("subcategoryId");
+CREATE INDEX "Artisan_subcategoryId_idx" ON "Artisan"("subcategoryId");
 
 -- CreateIndex
-CREATE INDEX "Listing_locationId_idx" ON "Listing"("locationId");
+CREATE INDEX "Artisan_locationId_idx" ON "Artisan"("locationId");
 
 -- CreateIndex
-CREATE INDEX "Listing_isActive_idx" ON "Listing"("isActive");
+CREATE INDEX "Artisan_isActive_idx" ON "Artisan"("isActive");
 
 -- CreateIndex
 CREATE INDEX "Location_city_idx" ON "Location"("city");
@@ -201,7 +207,7 @@ CREATE INDEX "Review_authorId_idx" ON "Review"("authorId");
 CREATE INDEX "Review_targetId_idx" ON "Review"("targetId");
 
 -- CreateIndex
-CREATE INDEX "Review_listingId_idx" ON "Review"("listingId");
+CREATE INDEX "Review_artisanId_idx" ON "Review"("artisanId");
 
 -- CreateIndex
 CREATE INDEX "Review_rating_idx" ON "Review"("rating");
@@ -213,7 +219,7 @@ CREATE INDEX "Tip_senderId_idx" ON "Tip"("senderId");
 CREATE INDEX "Tip_receiverId_idx" ON "Tip"("receiverId");
 
 -- CreateIndex
-CREATE INDEX "Tip_listingId_idx" ON "Tip"("listingId");
+CREATE INDEX "Tip_artisanId_idx" ON "Tip"("artisanId");
 
 -- CreateIndex
 CREATE INDEX "Tip_status_idx" ON "Tip"("status");
@@ -228,16 +234,16 @@ ALTER TABLE "Curator" ADD CONSTRAINT "Curator_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Subcategory" ADD CONSTRAINT "Subcategory_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Listing" ADD CONSTRAINT "Listing_curatorId_fkey" FOREIGN KEY ("curatorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Artisan" ADD CONSTRAINT "Artisan_curatorId_fkey" FOREIGN KEY ("curatorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Listing" ADD CONSTRAINT "Listing_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Artisan" ADD CONSTRAINT "Artisan_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Listing" ADD CONSTRAINT "Listing_subcategoryId_fkey" FOREIGN KEY ("subcategoryId") REFERENCES "Subcategory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Artisan" ADD CONSTRAINT "Artisan_subcategoryId_fkey" FOREIGN KEY ("subcategoryId") REFERENCES "Subcategory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Listing" ADD CONSTRAINT "Listing_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "Location"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Artisan" ADD CONSTRAINT "Artisan_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "Location"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Review" ADD CONSTRAINT "Review_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -246,7 +252,7 @@ ALTER TABLE "Review" ADD CONSTRAINT "Review_authorId_fkey" FOREIGN KEY ("authorI
 ALTER TABLE "Review" ADD CONSTRAINT "Review_targetId_fkey" FOREIGN KEY ("targetId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Review" ADD CONSTRAINT "Review_listingId_fkey" FOREIGN KEY ("listingId") REFERENCES "Listing"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Review" ADD CONSTRAINT "Review_artisanId_fkey" FOREIGN KEY ("artisanId") REFERENCES "Artisan"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Tip" ADD CONSTRAINT "Tip_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -255,4 +261,4 @@ ALTER TABLE "Tip" ADD CONSTRAINT "Tip_senderId_fkey" FOREIGN KEY ("senderId") RE
 ALTER TABLE "Tip" ADD CONSTRAINT "Tip_receiverId_fkey" FOREIGN KEY ("receiverId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Tip" ADD CONSTRAINT "Tip_listingId_fkey" FOREIGN KEY ("listingId") REFERENCES "Listing"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Tip" ADD CONSTRAINT "Tip_artisanId_fkey" FOREIGN KEY ("artisanId") REFERENCES "Artisan"("id") ON DELETE SET NULL ON UPDATE CASCADE;

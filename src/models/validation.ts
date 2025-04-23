@@ -1,5 +1,5 @@
+import { TipStatus, UserRole, VerificationStatus } from './interfaces';
 import { body, param, query } from 'express-validator';
-import { UserRole, VerificationStatus, TipStatus } from './interfaces';
 
 // User validation
 export const userValidation = {
@@ -113,10 +113,11 @@ export const subcategoryValidation = {
   ],
 };
 
-// Listing validation
-export const listingValidation = {
+// Artisan validation
+export const artisanValidation = {
   create: [
-    body('title').notEmpty().withMessage('Title is required'),
+    body('name').notEmpty().withMessage('Name is required'),
+    body('phone').notEmpty().withMessage('Phone Number is required'),
     body('description').notEmpty().withMessage('Description is required'),
     body('price').optional().isFloat({ min: 0 }).withMessage('Price must be a positive number'),
     body('priceRange').optional().isObject().withMessage('Price range must be an object'),
@@ -130,8 +131,9 @@ export const listingValidation = {
     body('isActive').optional().isBoolean().withMessage('isActive must be a boolean'),
   ],
   update: [
-    param('id').isUUID().withMessage('Valid listing ID is required'),
-    body('title').optional().notEmpty().withMessage('Title cannot be empty'),
+    param('id').isUUID().withMessage('Valid artisan ID is required'),
+    body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+    body('phone').notEmpty().withMessage('Phone Number is required'),
     body('description').optional().notEmpty().withMessage('Description cannot be empty'),
     body('price').optional().isFloat({ min: 0 }).withMessage('Price must be a positive number'),
     body('priceRange').optional().isObject().withMessage('Price range must be an object'),
@@ -153,10 +155,10 @@ export const listingValidation = {
     query('isActive').optional().isBoolean().withMessage('isActive must be a boolean'),
   ],
   getOne: [
-    param('id').isUUID().withMessage('Valid listing ID is required'),
+    param('id').isUUID().withMessage('Valid artisan ID is required'),
   ],
   delete: [
-    param('id').isUUID().withMessage('Valid listing ID is required'),
+    param('id').isUUID().withMessage('Valid artisan ID is required'),
   ],
 };
 
@@ -192,7 +194,7 @@ export const reviewValidation = {
     body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
     body('comment').optional().isString().withMessage('Comment must be a string'),
     body('targetId').isUUID().withMessage('Valid target user ID is required'),
-    body('listingId').optional().isUUID().withMessage('Valid listing ID is required'),
+    body('artisanId').optional().isUUID().withMessage('Valid artisan ID is required'),
   ],
   update: [
     param('id').isUUID().withMessage('Valid review ID is required'),
@@ -204,7 +206,7 @@ export const reviewValidation = {
     query('perPage').optional().isInt({ min: 1, max: 100 }).withMessage('Per page must be between 1 and 100'),
     query('authorId').optional().isUUID().withMessage('Valid author ID is required'),
     query('targetId').optional().isUUID().withMessage('Valid target ID is required'),
-    query('listingId').optional().isUUID().withMessage('Valid listing ID is required'),
+    query('artisanId').optional().isUUID().withMessage('Valid artisan ID is required'),
     query('rating').optional().isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
   ],
   getOne: [
@@ -222,7 +224,7 @@ export const tipValidation = {
     body('currency').optional().isString().withMessage('Currency must be a string'),
     body('message').optional().isString().withMessage('Message must be a string'),
     body('receiverId').isUUID().withMessage('Valid receiver ID is required'),
-    body('listingId').optional().isUUID().withMessage('Valid listing ID is required'),
+    body('artisanId').optional().isUUID().withMessage('Valid artisan ID is required'),
   ],
   update: [
     param('id').isUUID().withMessage('Valid tip ID is required'),
@@ -234,7 +236,7 @@ export const tipValidation = {
     query('perPage').optional().isInt({ min: 1, max: 100 }).withMessage('Per page must be between 1 and 100'),
     query('senderId').optional().isUUID().withMessage('Valid sender ID is required'),
     query('receiverId').optional().isUUID().withMessage('Valid receiver ID is required'),
-    query('listingId').optional().isUUID().withMessage('Valid listing ID is required'),
+    query('artisanId').optional().isUUID().withMessage('Valid artisan ID is required'),
     query('status').optional().isIn(Object.values(TipStatus)).withMessage('Invalid tip status'),
   ],
   getOne: [
