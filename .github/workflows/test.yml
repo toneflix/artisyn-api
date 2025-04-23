@@ -41,17 +41,22 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Generate Prisma Client
-        run: npm run prisma:generate
+        run: pnpm run prisma:generate
 
       - name: Run Migrations
-        run: npm run migrate
+        run: pnpm migrate:reset --force
 
       - name: Seed Database
-        run: npm run seed
+        run: pnpm run seed
 
       - name: Run Tests
-        run: npm run test
+        run: pnpm run test
