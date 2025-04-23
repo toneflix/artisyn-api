@@ -1,71 +1,58 @@
 name: 🚀 Feature or Task Request
 description: Suggest a new feature or backend implementation task
 title: 'Feature: '
-labels: ['enhancement']
-assignees: []
+labels: ['feature']
 
 body:
   - type: markdown
     attributes:
       value: |
-        ## 📌 Issue Summary
-        Briefly describe the task or feature being proposed.
+        ## 🎯 Feature Description
+        Clearly describe the new feature you're proposing.
 
   - type: textarea
-    id: summary
+    id: description
     attributes:
-      label: Summary
-      placeholder: Describe the task or feature clearly
+      label: Description
+      placeholder: What problem are we solving? What's the goal?
     validations:
       required: true
 
-  - type: markdown
+  - type: textarea
+    id: proposed_actions
     attributes:
-      value: |
-        ## 🛠 Proposed Actions
-        List individual steps needed to complete this task.
-
-  - type: dynamic
-    id: actions
-    attributes:
-      label: Proposed Action Steps
-      add_button_label: Add Action
-      fields:
-        - type: input
-          label: Action
-          placeholder: e.g., Design User model schema
+      label: Proposed Actions
+      description: |
+        List the proposed actions to implement this feature. 
+        You can list multiple steps (e.g. designing schema, writing migrations, adding validation, etc.).
+      placeholder: |
+        - Design schema for new model
+        - Create migration file
+        - Add service logic
+        - Write tests
+        - Update documentation
     validations:
       required: true
-
-  - type: markdown
-    attributes:
-      value: |
-        ## 📏 Guidelines
-        Follow these coding standards:
 
   - type: checkboxes
     id: guidelines
     attributes:
-      label: Coding Standards
+      label: Guidelines
       options:
         - label: Use TypeScript for type safety
-        - label: Implement proper indexing for performance
-        - label: Include comprehensive validation rules
-        - label: Write unit tests for all models
-        - label: Document schema with diagrams or inline comments
+        - label: Implement proper indexing
+        - label: Add validation rules
+        - label: Write unit tests
+        - label: Document with schema diagrams
 
   - type: input
     id: timeframe
     attributes:
       label: Estimated Timeframe
-      placeholder: e.g., 5 days
-    validations:
-      required: false
+      placeholder: e.g. 5 days
 
   - type: textarea
     id: notes
     attributes:
       label: Additional Notes
-      placeholder: Mention dependencies, blockers, or any other info
-    validations:
-      required: false
+      placeholder: Any other info to keep in mind?
