@@ -42,4 +42,4 @@ pnpm test
 
 ## Contribution Guide
 
-To contribute to this project, please read the [Documentation](specs) and proceed to check out the available issues, find one you can resolve, make something awesome and open a pull request.
+To contribute to this project, please read the [Documentation](specs) and proceed to check for available issues, find one you can resolve? Make something awesome and open a pull request.
