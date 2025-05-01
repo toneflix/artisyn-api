@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import logger from 'pino-http';
+import routes from './routes/index';
 
 // Load environment variables
 dotenv.config();
@@ -18,19 +19,7 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 app.use(logger())
-
-// Basic route for testing
-app.get('/', (req, res) => {
-  res.json({
-    data: {
-      message: 'Welcome to Artisyn API',
-      version: '1.0.0',
-    },
-    status: 'success',
-    message: 'OK',
-    code: 200,
-  });
-});
+app.use(routes);
 
 // Start server
 app.listen(port, () => {
