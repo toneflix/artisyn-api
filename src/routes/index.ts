@@ -12,6 +12,10 @@ function loadRoutes (dirPath: string) {
             const fullPath = join(dirPath, file);
             const stats = statSync(fullPath);
 
+            if (file.startsWith('__tests__')) {
+                return;
+            }
+
             if (stats.isDirectory()) {
                 // Recurse into subdirectory
                 loadRoutes(fullPath);

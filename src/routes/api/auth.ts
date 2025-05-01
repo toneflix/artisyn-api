@@ -3,13 +3,13 @@ import { Router } from 'express';
 const router = Router();
 
 router.post('/login', (req, res) => {
-    res.json({
+    res.status(202).json({
         data: {
             id: 1,
         },
         status: 'success',
         message: 'Login was successfull',
-        code: 200,
+        code: 202,
     });
 });
 
