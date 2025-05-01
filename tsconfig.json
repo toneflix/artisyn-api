@@ -17,7 +17,7 @@
   "include": [
     "src/**/*",
     "../dump/UserCollection.ts",
-    "../dump/UserResource.ts"
+    "src/resources/UserResource.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }
