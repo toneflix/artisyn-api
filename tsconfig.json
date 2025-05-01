@@ -14,10 +14,6 @@
     "resolveJsonModule": true,
     "baseUrl": "."
   },
-  "include": [
-    "src/**/*",
-    "../dump/UserCollection.ts",
-    "src/resources/UserResource.ts"
-  ],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

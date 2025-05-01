@@ -1,5 +1,6 @@
 import Resource, { ApiResource } from '../index';
 
+import UserCollection from '../UserCollection';
 import UserResource from '../UserResource';
 import app from '../../index'
 import request from 'supertest'
@@ -25,6 +26,35 @@ describe('Test dynamic routing system', () => {
         id: 1,
       })).json()
     });
+
+    app.get('/tester/resource/collection', (req, res) => {
+      ApiResource(new UserCollection(req, res,
+        {
+          data: [{
+            id: 1,
+            email: 'as@e.com',
+          }, {
+            id: 2,
+            email: 'as13@e.com',
+          }],
+        }
+      )).json()
+    });
+
+    app.get('/tester/resource/collection/paginated', (req, res) => {
+      ApiResource(new UserCollection(req, res,
+        {
+          data: [{
+            id: 2,
+            email: 'as13@e.com',
+          }],
+          pagination: {
+            from: 1,
+            to: 10
+          }
+        }
+      )).json()
+    });
   });
 
   it('should render resource', async () => {
@@ -43,5 +73,20 @@ describe('Test dynamic routing system', () => {
     const response = await request(app).get('/tester/resource');
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveProperty('data.id', 1);
+  });
+
+  it('should return user collection unpaginated', async () => {
+    const response = await request(app).get('/tester/resource/collection');
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data).toHaveLength(2);
+    expect(response.body.pagination).toBeUndefined();
+  });
+
+  it('should return user collection paginated', async () => {
+    const response = await request(app).get('/tester/resource/collection/paginated');
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data).toHaveLength(1);
+    expect(response.body).toHaveProperty('meta.pagination.to', 10);
+    expect(response.body).toHaveProperty('meta.pagination.from', 1);
   });
 });
