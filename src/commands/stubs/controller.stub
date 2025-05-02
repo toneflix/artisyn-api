@@ -6,7 +6,7 @@ import Resource from 'src/resources/index';
  * {{ControllerName}}
  */
 export default class {
-    async index (req: Request, res: Response) {
+    index = async (req: Request, res: Response) => {
         res.send('<p>Hello!</p>')
     }
 }

@@ -12,7 +12,7 @@ export default class {
      * @param req 
      * @param res 
      */
-    async index (req: Request, res: Response) {
+    index = async (req: Request, res: Response) => {
 
         Resource(req, res, {
             data: {},
@@ -32,7 +32,7 @@ export default class {
      * @param req 
      * @param res 
      */
-    async show (req: Request, res: Response) {
+    show = async (req: Request, res: Response) => {
         Resource(req, res, {
             data: {},
         })
@@ -51,7 +51,7 @@ export default class {
      * @param req 
      * @param res 
      */
-    async create (req: Request, res: Response) {
+    create = async (req: Request, res: Response) => {
         Resource(req, res, {
             data: {},
         })
@@ -70,7 +70,7 @@ export default class {
      * @param req 
      * @param res 
      */
-    async update (req: Request, res: Response) {
+    update = async (req: Request, res: Response) => {
         Resource(req, res, {
             data: {},
         })
@@ -89,7 +89,7 @@ export default class {
      * @param req 
      * @param res 
      */
-    async delete (req: Request, res: Response) {
+    delete = async (req: Request, res: Response) => {
         Resource(req, res, {
             data: {},
         })

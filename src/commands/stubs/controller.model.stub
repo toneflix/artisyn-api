@@ -15,7 +15,7 @@ export default class {
      * @param req 
      * @param res 
      */
-    async index (req: Request, res: Response) {
+    index = async (req: Request, res: Response) => {
 
         Resource(req, res, {
             data: await prisma.{{ModelName}}.findMany(
@@ -37,7 +37,7 @@ export default class {
      * @param req 
      * @param res 
      */
-    async show (req: Request, res: Response) {
+    show = async (req: Request, res: Response) => {
 
         Resource(req, res, {
             data: await prisma.{{ModelName}}.findFirst(
@@ -63,7 +63,7 @@ export default class {
      * @param req 
      * @param res 
      */
-    async create (req: Request, res: Response) {
+    create = async (req: Request, res: Response) => {
 
         const data = await prisma.{{ModelName}}.create({
             data: req.body,
@@ -87,7 +87,7 @@ export default class {
      * @param req 
      * @param res 
      */
-    async update (req: Request, res: Response) {
+    update = async (req: Request, res: Response) => {
         const data = await prisma.{{ModelName}}.update({
             where: { id: req.params.id },
             data: req.body(),
@@ -111,7 +111,7 @@ export default class {
      * @param req 
      * @param res 
      */
-    async delete (req: Request, res: Response) {
+    delete = async (req: Request, res: Response) => {
         await prisma.{{ModelName}}.delete(
             { where: { id: req.params.id } }
         )
