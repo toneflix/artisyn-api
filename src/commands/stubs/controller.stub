@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import Resource from '../resources/index';
+import Resource from 'src/resources/index';
 
 /**
  * {{ControllerName}}

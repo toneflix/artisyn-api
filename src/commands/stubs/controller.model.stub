@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 
 import { PrismaClient } from "@prisma/client";
-import Resource from '../resources/index';
-import { flattenObject } from "../utils/helpers";
-import formidable from 'formidable';
+import Resource from 'src/resources/index';
 
 const prisma = new PrismaClient();
 
@@ -11,6 +9,12 @@ const prisma = new PrismaClient();
  * {{ControllerName}}
  */
 export default class {
+    /**
+     * Get all resource from the database
+     * 
+     * @param req 
+     * @param res 
+     */
     async index (req: Request, res: Response) {
 
         Resource(req, res, {
@@ -27,6 +31,12 @@ export default class {
             });
     }
 
+    /**
+     * Get a specific resource from the database
+     * 
+     * @param req 
+     * @param res 
+     */
     async show (req: Request, res: Response) {
 
         Resource(req, res, {
@@ -43,27 +53,40 @@ export default class {
             });
     }
 
+    /**
+     * Create a new resource in the database
+     * 
+     * The calling route must recieve a multer.RequestHandler instance
+     * 
+     * @example router.post('/{{ModelName}}s', upload.none(), new AdminController().create);
+     * 
+     * @param req 
+     * @param res 
+     */
     async create (req: Request, res: Response) {
-        const form = formidable();
 
-        form.parse(req, async (err, fields, files) => {
-            const data = await prisma.{{ModelName}}.create({
-                data: flattenObject(fields),
-            })
+        const data = await prisma.{{ModelName}}.create({
+            data: req.body,
+        })
 
-            Resource(req, res, {
-                data,
-            })
-                .json()
-                .status(201)
-                .additional({
-                    status: 'success',
-                    message: 'New {{ModelName}} created successfully',
-                    code: 201,
-                });
-        });
+        Resource(req, res, {
+            data: data,
+        })
+            .json()
+            .status(201)
+            .additional({
+                status: 'success',
+                message: 'New {{ModelName}} created successfully',
+                code: 201,
+            });
     }
 
+    /**
+     * Update a specific resource in the database
+     * 
+     * @param req 
+     * @param res 
+     */
     async update (req: Request, res: Response) {
         const data = await prisma.{{ModelName}}.update({
             where: { id: req.params.id },
@@ -82,6 +105,12 @@ export default class {
             });
     }
 
+    /**
+     * Delete a specific resource from the database
+     * 
+     * @param req 
+     * @param res 
+     */
     async delete (req: Request, res: Response) {
         await prisma.{{ModelName}}.delete(
             { where: { id: req.params.id } }
