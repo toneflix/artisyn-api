@@ -1,7 +1,3 @@
-
-
----
-
 # Artisyn.io Backend API
 
 ## Controller Format
@@ -13,119 +9,95 @@ If additional methods are needed for a specific endpoint, create a **separate co
 ### Example: `listings.controller.ts`
 
 ```ts
-import { ListingService } from '../services/listing.service';
+import { Request, Response } from 'express';
+import Resource from '../resources/index';
 
-export class ListingsController {
-  constructor(private listingService: ListingService) {}
-
-  async getAll(req, res) {
-    const { page = 1, perPage = 10, ...filters } = req.query;
-    const result = await this.listingService.findAll(page, perPage, filters);
-
-    return res.json({
-      data: result.items,
-      meta: {
-        status: "success",
-        message: "OK",
+export class UserController {
+  async index(req: Request, res: Response) {
+    Resource(req, res, {
+      data: [],
+    })
+      .json()
+      .status(200)
+      .additional({
+        status: 'success',
+        message: 'OK',
         code: 200,
-        pagination: {
-          from: (page - 1) * perPage + 1,
-          to: Math.min(page * perPage, result.total),
-          perPage: perPage,
-          total: result.total
-        }
-      }
-    });
-  }
-
-  async getOne(req, res) {
-    const { id } = req.params;
-    const item = await this.listingService.findById(id);
-
-    if (!item) {
-      return res.status(404).json({
-        data: null,
-        meta: {
-          status: "error",
-          message: "Listing not found",
-          code: 404
-        }
       });
-    }
-
-    return res.json({
-      data: item,
-      meta: {
-        status: "success",
-        message: "OK",
-        code: 200
-      }
-    });
   }
 
-  async create(req, res) {
-    const newItem = await this.listingService.create(req.body, req.user.id);
-
-    return res.status(201).json({
-      data: newItem,
-      meta: {
-        status: "success",
-        message: "Listing created successfully",
-        code: 201
-      }
-    });
-  }
-
-  async update(req, res) {
-    const { id } = req.params;
-    const updated = await this.listingService.update(id, req.body, req.user.id);
-
-    if (!updated) {
-      return res.status(404).json({
-        data: null,
-        meta: {
-          status: "error",
-          message: "Listing not found or permission denied",
-          code: 404
-        }
+  async show(req: Request, res: Response) {
+    Resource(req, res, {
+      data: {},
+    })
+      .json()
+      .status(200)
+      .additional({
+        status: 'success',
+        message: 'OK',
+        code: 200,
       });
-    }
-
-    return res.json({
-      data: updated,
-      meta: {
-        status: "success",
-        message: "Listing updated successfully",
-        code: 200
-      }
-    });
   }
 
-  async delete(req, res) {
-    const { id } = req.params;
-    const deleted = await this.listingService.delete(id, req.user.id);
-
-    if (!deleted) {
-      return res.status(404).json({
-        data: null,
-        meta: {
-          status: "error",
-          message: "Listing not found or permission denied",
-          code: 404
-        }
+  async create(req: Request, res: Response) {
+    Resource(req, res, {
+      data: {},
+    })
+      .json()
+      .status(201)
+      .additional({
+        status: 'success',
+        message: 'New User created successfully',
+        code: 201,
       });
-    }
+  }
 
-    return res.json({
-      data: null,
-      meta: {
-        status: "success",
-        message: "Listing deleted successfully",
-        code: 200
-      }
-    });
+  async update(req: Request, res: Response) {
+    Resource(req, res, {
+      data: {},
+    })
+      .json()
+      .status(202)
+      .additional({
+        status: 'success',
+        message: 'User updated successfully',
+        code: 202,
+      });
+  }
+
+  async delete(req: Request, res: Response) {
+    Resource(req, res, {
+      data: {},
+    })
+      .json()
+      .status(202)
+      .additional({
+        status: 'success',
+        message: 'User deleted successfully',
+        code: 202,
+      });
   }
 }
 ```
+
+## Generating Controllers
+
+The current setup allows you to generate controllers with a CLI command.
+
+The command to generate controllers has this signature: `command make:controller [options] <name>`.
+
+To generate a controller named UserController run the command below
+
+```
+yarn command make:controller User
+```
+
+OR
+
+```
+yarn command make:controller UserController
+```
+
+Additionally, you can simply run `command` to see all available commands and signatures.
 
 ---

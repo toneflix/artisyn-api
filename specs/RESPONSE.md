@@ -22,11 +22,6 @@ For endpoints returning a **list**, the `data` property should contain the list,
 
 If any other specific datasets are needed (e.g., filters, counts, aggregates), they can be added to the `meta` object or alongside the `data` payload.
 
-## API Resources and Collections
-
-The recommended API response can easily be easily be obtained by implementing the `JsonResource` class in `src/resources/index`
-Here is how it works.
-
 ### For single Resources
 
 ```ts
@@ -182,3 +177,36 @@ The `message` field should provide a human-readable explanation of the outcome. 
 | 500  | Internal Server Error |
 
 ---
+
+## API Resources and Collections
+
+The recommended API response can easily be easily be obtained by implementing the `JsonResource` class in `src/resources/index`
+Here is how it works.
+
+## Generating Resource Collections
+
+The current setup allows you to generate resources and resources collections with a CLI command.
+
+### Resources
+
+The command to generate an API Resource has this signature: `command make:resource [options] <name>`
+
+To generate a Resource Collection named User collection run the command below
+
+```
+yarn command make:resource UserResource
+```
+
+### Resource Collections
+
+The command to generate an API Resource Collection has this signature: `command make:resource [options] <name>Collection`
+
+By appending `Collection` to the resource name, we are telling the system to generate a resource collection.
+
+To generate a Resource Collection named User collection run the command below
+
+```
+yarn command make:resource UserCollection
+```
+
+Additionally, you can simply run `command` to see all available commands and signatures

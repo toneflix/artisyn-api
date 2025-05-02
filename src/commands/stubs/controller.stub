@@ -1,0 +1,12 @@
+import { Request, Response } from "express";
+
+import Resource from '../resources/index';
+
+/**
+ * {{ControllerName}}
+ */
+export default class {
+    async index (req: Request, res: Response) {
+        res.send('<p>Hello!</p>')
+    }
+}
