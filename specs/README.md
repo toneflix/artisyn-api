@@ -1,6 +1,3 @@
-
----
-
 # Artisyn.io Backend API
 
 ## TABLE OF CONTENT

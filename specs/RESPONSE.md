@@ -1,6 +1,3 @@
-
----
-
 # Artisyn.io Backend API
 
 ## General Format
@@ -8,6 +5,7 @@
 API endpoints must follow the **single responsibility principle** and return camelCased JSON responses.
 
 All response objects **must always** include the following properties:
+
 - `data`
 - `message`
 - `status`
@@ -24,22 +22,95 @@ For endpoints returning a **list**, the `data` property should contain the list,
 
 If any other specific datasets are needed (e.g., filters, counts, aggregates), they can be added to the `meta` object or alongside the `data` payload.
 
+## API Resources and Collections
+
+The recommended API response can easily be easily be obtained by implementing the `JsonResource` class in `src/resources/index`
+Here is how it works.
+
+### For single Resources
+
+```ts
+import { ApiResource } from './src/resources/index';
+import UserResource from './src/resources/UserResource';
+
+app.get('/user', (req, res) => {
+  ApiResource(
+    new UserResource(req, res, {
+      id: 1,
+      email: 'user@example.com',
+    })
+  ).json();
+});
+```
+
+### For Resource Collections
+
+```ts
+import { ApiResource } from './src/resources/index';
+import UserCollection from '.src/resources/UserCollection';
+
+app.get('/users', (req, res) => {
+  ApiResource(
+    new UserCollection(req, res, {
+      data: [
+        {
+          id: 1,
+          email: 'as@e.com',
+        },
+        {
+          id: 2,
+          email: 'as13@e.com',
+        },
+      ],
+    })
+  ).json();
+});
+```
+
+OR
+
+```ts
+import { ApiResource } from './src/resources/index';
+import UserCollection from '.src/resources/UserCollection';
+
+app.get('/users', (req, res) => {
+  ApiResource(
+    new UserCollection(req, res, {
+      data: [
+        {
+          id: 1,
+          email: 'as@e.com',
+        },
+        {
+          id: 2,
+          email: 'as13@e.com',
+        },
+      ],
+      pagination: {
+        from: 1,
+        to: 10,
+      },
+    })
+  ).json();
+});
+```
+
 ### List Example
 
 ```json
 {
-    "data": [],
-    "status": "success",
-    "message": "OK",
-    "code": 200,
-    "meta": {
-        "pagination": {
-            "from": 1,
-            "to": 2,
-            "perPage": 5,
-            "total": 10
-        }
+  "data": [],
+  "status": "success",
+  "message": "OK",
+  "code": 200,
+  "meta": {
+    "pagination": {
+      "from": 1,
+      "to": 2,
+      "perPage": 5,
+      "total": 10
     }
+  }
 }
 ```
 
@@ -47,13 +118,13 @@ If any other specific datasets are needed (e.g., filters, counts, aggregates), t
 
 ```json
 {
-    "data": {
-        "id": 1,
-        "name": "John"
-    },
-    "status": "success",
-    "message": "OK",
-    "code": 200
+  "data": {
+    "id": 1,
+    "name": "John"
+  },
+  "status": "success",
+  "message": "OK",
+  "code": 200
 }
 ```
 
@@ -98,16 +169,16 @@ The `status` field describes the general outcome of the request using one of the
 
 The `message` field should provide a human-readable explanation of the outcome. If there's no specific message (e.g., a simple GET with no extra info), default to the standard status messages:
 
-| Code | Default Message           |
-|------|----------------------------|
-| 200  | OK                         |
-| 201  | Created                    |
-| 202  | Accepted                   |
-| 400  | Bad Request                |
-| 401  | Unauthenticated            |
-| 403  | Access Denied              |
-| 404  | Not Found                  |
-| 422  | Unprocessable Entity       |
-| 500  | Internal Server Error      |
+| Code | Default Message       |
+| ---- | --------------------- |
+| 200  | OK                    |
+| 201  | Created               |
+| 202  | Accepted              |
+| 400  | Bad Request           |
+| 401  | Unauthenticated       |
+| 403  | Access Denied         |
+| 404  | Not Found             |
+| 422  | Unprocessable Entity  |
+| 500  | Internal Server Error |
 
 ---
