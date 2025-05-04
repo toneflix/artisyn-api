@@ -1,3 +1,5 @@
+import { $Enums } from "@prisma/client";
+
 // Enums
 export enum UserRole {
   USER = 'USER',
@@ -28,15 +30,28 @@ export interface IUser {
   id: string;
   email: string;
   password: string;
-  walletAddress?: string;
+  walletAddress: string | null;
   firstName: string;
   lastName: string;
-  role: UserRole;
-  avatar?: string;
-  bio?: string;
-  phone?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  role: $Enums.UserRole;
+  avatar: string | null;
+  bio: string | null;
+  phone: string | null;
+  createdAt: Date | string | null;
+  updatedAt: Date | string | null;
+  locationId: string | null;
+  emailVerifiedAt: Date | string | null;
+  emailVerificationCode: string | null;
+
+  // Relations
+  // curator: ICurator;
+  // artisans: IArtisan[]
+  // reviews: IReview[]
+  // receivedReviews: IReview[]
+  // sentTips: ITip[]
+  // receivedTips: ITip[]
+  // location: ILocation
+  // personalAccessTokens: PersonalAccessToken[];
 }
 
 export interface ICurator {

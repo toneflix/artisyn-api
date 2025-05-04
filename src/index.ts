@@ -1,34 +1,33 @@
 import 'module-alias/register'
+import './utils/prototypes'
 
 import { PrismaClient } from '@prisma/client';
-import cors from 'cors';
 import dotenv from 'dotenv';
+import { env } from './utils/helpers';
 import express from 'express';
-import logger from 'pino-http';
-import routes from './routes/index';
+import { initialize } from './utils/initialize';
+import path from 'path';
 
 // Load environment variables
 dotenv.config();
 
 // Initialize Express app
 const app = express();
-const port = process.env.PORT || 3000;
+const port = env('PORT', 3000);
 
 // Initialize Prisma client
 const prisma = new PrismaClient();
 
-// Middleware
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
-app.use(routes);
-if (process.env.NODE_ENV !== 'test') {
-  app.use(logger())
-}
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/media', express.static(path.join(__dirname, 'public')));
+
+initialize(app)
 
 // Start server
 app.listen(port, () => {
-  if (process.env.NODE_ENV !== 'test') {
+  if (env('NODE_ENV') !== 'test') {
     console.log(`Server running on port ${port}`);
   }
 });
