@@ -5,10 +5,10 @@ CREATE TYPE "UserRole" AS ENUM ('USER', 'CURATOR', 'ADMIN');
 CREATE TYPE "VerificationStatus" AS ENUM ('PENDING', 'VERIFIED', 'REJECTED');
 
 -- CreateEnum
-CREATE TYPE "TipStatus" AS ENUM ('PENDING', 'COMPLETED', 'CANCELLED', 'REFUNDED');
+CREATE TYPE "ArtisanType" AS ENUM ('PERSON', 'BUSINESS');
 
 -- CreateEnum
-CREATE TYPE "ArtisanType" AS ENUM ('PERSON', 'BUSINESS');
+CREATE TYPE "TipStatus" AS ENUM ('PENDING', 'COMPLETED', 'CANCELLED', 'REFUNDED');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -22,10 +22,42 @@ CREATE TABLE "User" (
     "avatar" TEXT,
     "bio" TEXT,
     "phone" TEXT,
+    "googleId" VARCHAR(255),
+    "facebookId" VARCHAR(255),
+    "emailVerifiedAt" TIMESTAMP(3),
+    "emailVerificationCode" VARCHAR(64),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "locationId" TEXT,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "personal_access_token" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "abilities" JSONB,
+    "lastUsedAt" TIMESTAMP(3),
+    "expiresAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "personal_access_token_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "password_code_resets" (
+    "id" TEXT NOT NULL,
+    "email" TEXT,
+    "phone" TEXT,
+    "code" VARCHAR(64) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "password_code_resets_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -72,8 +104,8 @@ CREATE TABLE "Subcategory" (
 CREATE TABLE "Artisan" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "email" TEXT NULL DEFAULT NULL,
-    "phone" TEXT NULL DEFAULT NULL,
+    "email" TEXT,
+    "phone" TEXT,
     "type" "ArtisanType" NOT NULL DEFAULT 'PERSON',
     "description" TEXT NOT NULL,
     "price" DOUBLE PRECISION,
@@ -153,6 +185,15 @@ CREATE INDEX "User_walletAddress_idx" ON "User"("walletAddress");
 CREATE INDEX "User_role_idx" ON "User"("role");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "personal_access_token_token_key" ON "personal_access_token"("token");
+
+-- CreateIndex
+CREATE INDEX "personal_access_token_userId_idx" ON "personal_access_token"("userId");
+
+-- CreateIndex
+CREATE INDEX "password_code_resets_email_idx" ON "password_code_resets"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Curator_userId_key" ON "Curator"("userId");
 
 -- CreateIndex
@@ -168,10 +209,10 @@ CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
 CREATE INDEX "Category_name_idx" ON "Category"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Subcategory_name_categoryId_key" ON "Subcategory"("name", "categoryId");
+CREATE INDEX "Subcategory_categoryId_idx" ON "Subcategory"("categoryId");
 
 -- CreateIndex
-CREATE INDEX "Subcategory_categoryId_idx" ON "Subcategory"("categoryId");
+CREATE UNIQUE INDEX "Subcategory_name_categoryId_key" ON "Subcategory"("name", "categoryId");
 
 -- CreateIndex
 CREATE INDEX "Artisan_curatorId_idx" ON "Artisan"("curatorId");
@@ -226,6 +267,12 @@ CREATE INDEX "Tip_status_idx" ON "Tip"("status");
 
 -- CreateIndex
 CREATE INDEX "Tip_txHash_idx" ON "Tip"("txHash");
+
+-- AddForeignKey
+ALTER TABLE "User" ADD CONSTRAINT "User_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "Location"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "personal_access_token" ADD CONSTRAINT "personal_access_token_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Curator" ADD CONSTRAINT "Curator_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

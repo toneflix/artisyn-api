@@ -3,7 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "../node_modules/.prisma/client"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -33,32 +33,69 @@ enum ArtisanType {
 
 // User model for both regular users and curators
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  password      String
-  walletAddress String?  @unique
-  firstName     String
-  lastName      String
-  role          UserRole @default(USER)
-  avatar        String?
-  bio           String?
-  phone         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                    String    @id @default(uuid())
+  email                 String    @unique
+  password              String
+  walletAddress         String?   @unique
+  firstName             String
+  lastName              String
+  role                  UserRole  @default(USER)
+  avatar                String?
+  bio                   String?
+  phone                 String?
+  googleId              String?   @db.VarChar(255)
+  facebookId            String?   @db.VarChar(255)
+  emailVerifiedAt       DateTime?
+  emailVerificationCode String?   @db.VarChar(64)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   // Relations
-  curator         Curator?
-  artisans        Artisan[]
-  reviews         Review[]  @relation("ReviewAuthor")
-  receivedReviews Review[]  @relation("ReviewTarget")
-  sentTips        Tip[]     @relation("TipSender")
-  receivedTips    Tip[]     @relation("TipReceiver")
-  location        Location? @relation(fields: [locationId], references: [id])
-  locationId      String?
+  curator              Curator?
+  artisans             Artisan[]
+  reviews              Review[]              @relation("ReviewAuthor")
+  receivedReviews      Review[]              @relation("ReviewTarget")
+  sentTips             Tip[]                 @relation("TipSender")
+  receivedTips         Tip[]                 @relation("TipReceiver")
+  location             Location?             @relation(fields: [locationId], references: [id])
+  personalAccessTokens PersonalAccessToken[] @relation("TokenUser")
+  locationId           String?
 
   @@index([email])
   @@index([walletAddress])
   @@index([role])
+}
+
+// User personal access token model
+model PersonalAccessToken {
+  id         String    @id @default(uuid())
+  userId     String
+  name       String
+  token      String    @unique @db.Text
+  abilities  Json?
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  user User @relation("TokenUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("personal_access_token")
+}
+
+// User password resets model
+model PasswordCodeResets {
+  id        String   @id @default(uuid())
+  email     String?
+  phone     String?
+  code      String   @db.VarChar(64)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@map("password_code_resets")
 }
 
 // Curator profile model
@@ -116,7 +153,7 @@ model Subcategory {
 
 // Artisan model
 model Artisan {
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
   name          String
   email         String?
   phone         String?
@@ -129,9 +166,9 @@ model Artisan {
   categoryId    String
   subcategoryId String?
   locationId    String
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   // Relations
   curator     User         @relation(fields: [curatorId], references: [id], onDelete: Cascade)
