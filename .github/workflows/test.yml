@@ -30,6 +30,12 @@ jobs:
       JWT_SECRET: your-jwt-secret-key
       JWT_EXPIRES_IN: 7d
       NODE_ENV: test
+      GOOGLE_CALLBACK: http://localhost:3000/api/auth/google/callback
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      FACEBOOK_CALLBACK: http://localhost:3000/api/auth/facebook/callback
+      FACEBOOK_CLIENT_ID: sss
+      FACEBOOK_CLIENT_SECRET: sss
 
     steps:
       - uses: actions/checkout@v3
@@ -38,6 +44,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Copy ENV
+        run: cp .env.example .env
 
       - name: Install dependencies
         run: yarn
