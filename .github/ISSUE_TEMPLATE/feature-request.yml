@@ -1,0 +1,58 @@
+name: 🚀 Feature or Task Request
+description: Suggest a new feature or backend implementation task
+title: 'Feature: '
+labels: ['feature']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🎯 Feature Description
+        Clearly describe the new feature you're proposing.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: What problem are we solving? What's the goal?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_actions
+    attributes:
+      label: Proposed Actions
+      description: |
+        List the proposed actions to implement this feature. 
+        You can list multiple steps (e.g. designing schema, writing migrations, adding validation, etc.).
+      placeholder: |
+        - Design schema for new model
+        - Create migration file
+        - Add service logic
+        - Write tests
+        - Update documentation
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: guidelines
+    attributes:
+      label: Guidelines
+      options:
+        - label: Use TypeScript for type safety
+        - label: Implement proper indexing
+        - label: Add validation rules
+        - label: Write unit tests
+        - label: Document with schema diagrams
+
+  - type: input
+    id: timeframe
+    attributes:
+      label: Estimated Timeframe
+      placeholder: e.g. 5 days
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      placeholder: Any other info to keep in mind?
