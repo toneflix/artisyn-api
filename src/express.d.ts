@@ -14,5 +14,11 @@ declare global {
     interface String {
         titleCase (): string;
         camelCase (): string;
+        /**
+         *
+         * @param len Length of the string
+         * @param suffix Suffix to add to the string
+         */
+        truncate (len: number = 20, suffix: string = '...'): string
     }
 }

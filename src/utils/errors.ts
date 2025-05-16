@@ -15,4 +15,10 @@ export class RequestError extends Error {
         super(message, options);
         this.statusCode = statusCode
     }
+
+    static abortIf (boolean: boolean, message: string, code?: number) {
+        if (boolean) {
+            throw new RequestError(message, code);
+        }
+    }
 }

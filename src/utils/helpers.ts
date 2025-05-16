@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { constructFrom, isPast } from "date-fns";
 
-import ErrorHandler from "./ErrorHandler";
 import { Flatten } from "src/interfaces/basic-types";
 import { PrismaClient } from "@prisma/client";
 import { RequestError } from "./errors";
@@ -66,12 +65,12 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
 
-    if (token == null) ErrorHandler(new RequestError("Unauthenticated", 401), req, res, next)
+    RequestError.abortIf(!token, "Unauthenticated", 401)
 
     try {
         jwt.verify(token!, env('JWT_SECRET', ''), async (err: any, jwt: any) => {
 
-            if (err) ErrorHandler(new RequestError("Unauthenticated", 401), req, res, next)
+            RequestError.abortIf(!!err, "Unauthenticated", 401)
 
             const prisma = new PrismaClient();
             const accessToken = await prisma.personalAccessToken.findFirst({ where: { token }, include: { user: true } })
@@ -81,13 +80,13 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
                 req.user = user
                 req.authToken = accessToken?.token
             } else {
-                ErrorHandler(new RequestError("Unauthenticated", 401), req, res, next)
+                RequestError.abortIf(true, "Unauthenticated", 401)
             }
 
             next()
         })
     } catch {
-        ErrorHandler(new RequestError("Unauthenticated", 401), req, res, next)
+        RequestError.abortIf(true, "Unauthenticated", 401)
     }
 }
 
@@ -105,7 +104,7 @@ export const env = <X = string, Y = undefined> (env: string, def?: Y): (Y extend
         val = [true, 'true', 'on'].includes(val)
     }
 
-    if (!isNaN(Number(val))) {
+    if (!isNaN(Number(val)) && typeof val !== 'boolean') {
         val = Number(val)
     }
 
@@ -164,3 +163,23 @@ export const secureOtp = (length = 6) => {
     }
     return otp;
 }
+
+/**
+ *
+ * @param str String to truncate
+ * @param len Length of the string
+ * @param suffix Suffix to add to the string
+ */
+export const truncateText = (
+    str: string,
+    len: number = 20,
+    suffix: string = '...',
+): string => {
+    if (!str) {
+        return '';
+    }
+    str = str.replace(/(<([^>]+)>)/gi, '');
+    const s =
+        (str || '').length > len ? str.substring(0, len - 3) + suffix : str || '';
+    return s.replace('\n', ' ').replace(' ' + suffix, suffix.slice(1));
+};
