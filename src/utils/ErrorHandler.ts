@@ -1,13 +1,9 @@
 import { NextFunction, Request, Response } from "express"
 
+import { ValidationError } from "./errors";
 import { env } from "./helpers";
 
-interface RequestError extends Error {
-    statusCode?: number | undefined,
-    errors?: Record<string, any> | undefined
-}
-
-const ErrorHandler = (err: RequestError, req: Request, res: Response, next: NextFunction) => {
+const ErrorHandler = (err: ValidationError, req: Request, res: Response, next: NextFunction) => {
     const errStatus = err.statusCode || 500;
     const errMsg = err.message || 'Something went wrong';
 
