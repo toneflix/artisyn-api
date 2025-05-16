@@ -53,7 +53,7 @@ const makeController = (name: string, options: any) => {
 
     generateFile(stubPath, outputPath, {
         ControllerName: controllerName,
-        ModelName: options.model?.toLowerCase(),
+        ModelName: options.model?.camelCase(),
         Name: controllerName.replace(/controller/i, ''),
     });
 }
