@@ -4,7 +4,7 @@ import { constructFrom, differenceInMinutes } from "date-fns";
 import { generateAccessToken, secureOtp } from "src/utils/helpers";
 
 import { ApiResource } from 'src/resources/index';
-import BaseController from "../BaseController";
+import BaseController from "src/controllers/BaseController";
 import { IUser } from "src/models/interfaces";
 import { PrismaClient } from "@prisma/client";
 import { UAParser } from 'ua-parser-js';
