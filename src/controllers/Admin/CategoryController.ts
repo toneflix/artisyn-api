@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Resource, { ApiResource } from 'src/resources/index';
 
+import BaseController from "../BaseController";
 import CategoryCollection from "src/resources/CategoryCollection";
 import CategoryResource from "src/resources/CategoryResource";
 import { PrismaClient } from "@prisma/client";
@@ -10,7 +11,7 @@ const prisma = new PrismaClient();
 /**
  * Admin/CategoryController
  */
-export default class {
+export default class extends BaseController {
     /**
      * Get all resource from the database
      * 
@@ -41,10 +42,12 @@ export default class {
      */
     show = async (req: Request, res: Response) => {
 
+        const category = await prisma.category.findFirst(
+            { where: { id: req.params.id } }
+        )
+
         ApiResource(new CategoryResource(req, res, {
-            data: await prisma.category.findFirst(
-                { where: { id: req.params.id } }
-            ),
+            data: category,
         }))
             .json()
             .status(200)
@@ -67,8 +70,14 @@ export default class {
      */
     create = async (req: Request, res: Response) => {
 
+        const formData = this.validate(req, {
+            name: 'required|string|min:3',
+            icon: 'string|min:3',
+            description: 'string|min:10',
+        });
+
         const data = await prisma.category.create({
-            data: req.body,
+            data: formData,
         })
 
         ApiResource(new CategoryResource(req, res, {
@@ -90,9 +99,15 @@ export default class {
      * @param res 
      */
     update = async (req: Request, res: Response) => {
+        const formData = this.validate(req, {
+            name: 'required|string|min:3',
+            icon: 'string|min:3',
+            description: 'string|min:10',
+        });
+
         const data = await prisma.category.update({
             where: { id: req.params.id },
-            data: req.body(),
+            data: formData,
         })
 
         ApiResource(new CategoryResource(req, res, {
@@ -102,7 +117,7 @@ export default class {
             .status(202)
             .additional({
                 status: 'success',
-                message: 'category updated successfully',
+                message: 'Category updated successfully',
                 code: 202,
             });
     }
