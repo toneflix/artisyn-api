@@ -54,7 +54,6 @@ const makeController = (name: string, options: any) => {
         process.exit(1);
     }
 
-    console.log('ddd', 'ss'.camelCase())
     generateFile(stubPath, outputPath, {
         ControllerName: controllerName,
         ModelName: options.model?.camelCase(),
