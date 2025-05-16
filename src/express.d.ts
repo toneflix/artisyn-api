@@ -11,5 +11,6 @@ declare global {
     }
     interface String {
         titleCase (): string;
+        camelCase (): string;
     }
 }
