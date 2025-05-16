@@ -1,5 +1,7 @@
 import { IUser } from "./models/interfaces";
 
+export { };
+
 declare global {
     namespace Express {
         interface User extends IUser { }

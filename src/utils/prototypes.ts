@@ -1,3 +1,5 @@
+export { };
+
 String.prototype.titleCase = function () {
     return this.toLowerCase()
         .replace(/_/g, ' ')
@@ -12,4 +14,4 @@ String.prototype.camelCase = function () {
         if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
         return index === 0 ? match.toLowerCase() : match.toUpperCase();
     });
-}
+} 

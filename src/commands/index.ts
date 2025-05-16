@@ -1,4 +1,7 @@
 #!/usr/bin/env ts-node
+/// <reference path="../express.d.ts" />
+
+import '../utils/prototypes'
 
 import { dirname, join } from 'path';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
@@ -51,6 +54,7 @@ const makeController = (name: string, options: any) => {
         process.exit(1);
     }
 
+    console.log('ddd', 'ss'.camelCase())
     generateFile(stubPath, outputPath, {
         ControllerName: controllerName,
         ModelName: options.model?.camelCase(),
