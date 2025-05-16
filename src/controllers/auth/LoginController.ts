@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { ApiResource } from 'src/resources/index';
-import BaseController from "../BaseController";
+import BaseController from "src/controllers/BaseController";
 import { PrismaClient } from "@prisma/client";
 import { UAParser } from "ua-parser-js";
 import UserResource from "src/resources/UserResource";
