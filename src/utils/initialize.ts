@@ -1,6 +1,6 @@
 import { facebookStrategy, googleStrategy } from './passport';
 
-import ErrorHandler from "./ErrorHandler";
+import { ErrorHandler } from "./request-handlers";
 import { Express } from "express"
 import cors from 'cors';
 import { env } from './helpers';

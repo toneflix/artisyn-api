@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express"
 
+import { Prisma } from "@prisma/client";
 import { ValidationError } from "./errors";
 import { env } from "./helpers";
 
-const ErrorHandler = (err: ValidationError, req: Request, res: Response, next: NextFunction) => {
+export const ErrorHandler = (err: ValidationError, req: Request, res: Response, next: NextFunction) => {
     const errStatus = err.statusCode || 500;
     const errMsg = err.message || 'Something went wrong';
 
@@ -17,11 +18,16 @@ const ErrorHandler = (err: ValidationError, req: Request, res: Response, next: N
         error.errors = err.errors
     }
 
-    if (env('NODE_ENV') === 'development') {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+        error.code = 404
+        error.message = `${err.meta?.modelName} not found!`
+    }
+
+    if (env('NODE_ENV') === 'development' && env<boolean>('HIDE_ERROR_STACK') !== true) {
         error.stack = err.stack
     }
 
-    res.status(errStatus).json(error)
+    res.status(error.code).json(error)
 }
 
 export default ErrorHandler

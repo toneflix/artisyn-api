@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Resource, { ApiResource } from 'src/resources/index';
+import { ApiResource } from 'src/resources/index';
 
 import BaseController from "../BaseController";
 import CategoryCollection from "src/resources/CategoryCollection";
@@ -22,7 +22,10 @@ export default class extends BaseController {
 
         ApiResource(new CategoryCollection(req, res, {
             data: await prisma.category.findMany(
-                { orderBy: { id: 'asc' } }
+                {
+                    orderBy: { id: 'asc' },
+                    where: req.query.search ? { name: { contains: <string>req.query.search } } : {}
+                }
             ),
         }))
             .json()
@@ -42,7 +45,7 @@ export default class extends BaseController {
      */
     show = async (req: Request, res: Response) => {
 
-        const category = await prisma.category.findFirst(
+        const category = await prisma.category.findFirstOrThrow(
             { where: { id: req.params.id } }
         )
 
@@ -99,6 +102,10 @@ export default class extends BaseController {
      * @param res 
      */
     update = async (req: Request, res: Response) => {
+        await prisma.category.findFirstOrThrow(
+            { where: { id: req.params.id } }
+        )
+
         const formData = this.validate(req, {
             name: 'required|string|min:3',
             icon: 'string|min:3',
@@ -129,6 +136,10 @@ export default class extends BaseController {
      * @param res 
      */
     delete = async (req: Request, res: Response) => {
+        await prisma.category.findFirstOrThrow(
+            { where: { id: req.params.id } }
+        )
+
         await prisma.category.delete(
             { where: { id: req.params.id } }
         )
