@@ -33,6 +33,7 @@ export const sendMail = async (config: {
     const replacements = Object.assign({}, {
         logo: appUrl('media/logo-dark.svg'),
         message: config.text ?? '',
+        preview: `${config.text}`.replace(/<[^>]+>/g, '').truncate(200),
         caption: config.caption ?? '',
         address: config.data?.address ?? '',
         year: new Date().getFullYear(),

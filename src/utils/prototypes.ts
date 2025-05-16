@@ -1,3 +1,5 @@
+import { truncateText } from "./helpers";
+
 export { };
 
 String.prototype.titleCase = function () {
@@ -14,4 +16,9 @@ String.prototype.camelCase = function () {
         if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
         return index === 0 ? match.toLowerCase() : match.toUpperCase();
     });
+}
+
+
+String.prototype.truncate = function (len: number = 20, suffix: string = '...') {
+    return truncateText(this.toString(), len, suffix);
 } 
