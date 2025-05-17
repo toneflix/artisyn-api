@@ -5,6 +5,7 @@ import BaseController from "../BaseController";
 import CategoryCollection from "src/resources/CategoryCollection";
 import CategoryResource from "src/resources/CategoryResource";
 import { PrismaClient } from "@prisma/client";
+import { ValidationError } from "src/utils/errors";
 
 const prisma = new PrismaClient();
 
@@ -19,14 +20,30 @@ export default class extends BaseController {
      * @param res 
      */
     index = async (req: Request, res: Response) => {
+        const { take, skip, meta } = this.pagination(req)
+
+        const orderBy = {
+            id: 'id',
+            name: 'name',
+        }[String(req.query.orderBy ?? 'id')] ?? 'id';
+
+        const query = {
+            where: req.query.search ? { name: { contains: <string>req.query.search } } : {}
+        }
+
+        const [data, total] = await Promise.all([
+            prisma.category.findMany({
+                ...query,
+                orderBy: { [orderBy]: req.query.orderDir === 'desc' ? 'desc' : 'asc' },
+                take,
+                skip,
+            }),
+            prisma.category.count(query)
+        ])
 
         ApiResource(new CategoryCollection(req, res, {
-            data: await prisma.category.findMany(
-                {
-                    orderBy: { id: 'asc' },
-                    where: req.query.search ? { name: { contains: <string>req.query.search } } : {}
-                }
-            ),
+            data,
+            pagination: meta(total, data.length)
         }))
             .json()
             .status(200)
@@ -78,6 +95,10 @@ export default class extends BaseController {
             icon: 'string|min:3',
             description: 'string|min:10',
         });
+
+        if (await prisma.category.count({ where: { name: formData.name } })) {
+            ValidationError.withMessages({ name: [`There is already a category named ${formData.name}`] })
+        }
 
         const data = await prisma.category.create({
             data: formData,
