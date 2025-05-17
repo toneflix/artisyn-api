@@ -63,14 +63,15 @@ register('exists', async function (value, parameters, attribute) {
 });
 
 const validator = <X extends InitialRules, A extends boolean = false> (
-    data: { [key: string]: any },
+    data: { [key: string]: any } | undefined,
     rules: X,
     async: A
 ): InferInput<X, A> => {
 
     const validator = make()
-        .setData(data)
+        .setData(data ?? {})
         .setRules(rules);
+
 
     const castValue = (value: any, fieldRules: string[]): any => {
         if (fieldRules.includes('boolean')) {
@@ -84,6 +85,8 @@ const validator = <X extends InitialRules, A extends boolean = false> (
 
     const ouputData = () => {
         const result = {} as InferInput<X, false>;
+
+        if (!data) return {}
 
         for (const key of Object.keys(rules) as (keyof X)[]) {
             if (data[key as string] !== undefined) {
