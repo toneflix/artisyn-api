@@ -1,3 +1,4 @@
+import CategoryController from 'src/controllers/CategoryController';
 import { Router } from 'express';
 
 const router = Router();
@@ -13,5 +14,8 @@ router.get('/', (req, res) => {
         code: 200,
     });
 });
+
+router.get('/categories', new CategoryController().index);
+router.get('/categories/:id', new CategoryController().show);
 
 export default router;

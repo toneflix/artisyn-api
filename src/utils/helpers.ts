@@ -1,9 +1,10 @@
+import { AutheticationError, RequestError } from "./errors";
 import { NextFunction, Request, Response } from "express";
 import { constructFrom, isPast } from "date-fns";
 
+import ErrorHandler from "./request-handlers";
 import { Flatten } from "src/interfaces/basic-types";
 import { PrismaClient } from "@prisma/client";
-import { RequestError } from "./errors";
 import jwt from "jsonwebtoken";
 
 /**
@@ -65,7 +66,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
 
-    RequestError.abortIf(!token, "Unauthenticated", 401)
+    RequestError.abortIf(!token, "Unauthenticated", 401, req, res)
 
     try {
         jwt.verify(token!, env('JWT_SECRET', ''), async (err: any, jwt: any) => {
@@ -80,13 +81,13 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
                 req.user = user
                 req.authToken = accessToken?.token
             } else {
-                RequestError.abortIf(true, "Unauthenticated", 401)
+                RequestError.abortIf(true, "Unauthenticated", 401, req, res)
             }
 
             next()
         })
-    } catch {
-        RequestError.abortIf(true, "Unauthenticated", 401)
+    } catch (e) {
+        RequestError.abortIf(true, "Unauthenticated", 401, req, res)
     }
 }
 

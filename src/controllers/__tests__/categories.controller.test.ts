@@ -1,11 +1,9 @@
 import CategoryController from '../Admin/CategoryController';
+import CategoryPublicController from '../CategoryController';
 import { ICategory } from 'src/models/interfaces';
-import { PrismaClient } from '@prisma/client';
 import app from '../../index'
 import multer from 'multer';
 import request from 'supertest'
-
-const prisma = new PrismaClient();
 
 describe('Test controllers', () => {
     let category: ICategory;
@@ -18,6 +16,9 @@ describe('Test controllers', () => {
         app.post('/tester', upload.none(), new CategoryController().create);
         app.put('/tester/:id', upload.none(), new CategoryController().update);
         app.delete('/tester/:id', new CategoryController().delete);
+
+        app.get('/public/tester', new CategoryPublicController().index);
+        app.get('/public/tester/:id', new CategoryPublicController().show);
     });
 
     it('should create category', async () => {
@@ -44,8 +45,25 @@ describe('Test controllers', () => {
         expect(Array.isArray(response.body.data)).toBeTruthy();
     });
 
+    it('should show get public categories', async () => {
+        const response = await request(app).get('/public/tester');
+        expect(response.body.data[0].icon).toBe('fas');
+        expect(response.body.data[0].name).toBe('Hello');
+        expect(response.body.data[0].description).toBe('Hello World');
+        expect(response.statusCode).toBe(200);
+        expect(Array.isArray(response.body.data)).toBeTruthy();
+    });
+
     it('should get category', async () => {
         const response = await request(app).get('/tester/' + category.id);
+        expect(response.body.data.icon).toBe('fas');
+        expect(response.body.data.name).toBe('Hello');
+        expect(response.body.data.description).toBe('Hello World');
+        expect(response.statusCode).toBe(200);
+    });
+
+    it('should get public category', async () => {
+        const response = await request(app).get('/public/tester/' + category.id);
         expect(response.body.data.icon).toBe('fas');
         expect(response.body.data.name).toBe('Hello');
         expect(response.body.data.description).toBe('Hello World');
