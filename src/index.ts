@@ -1,5 +1,5 @@
 import 'module-alias/register'
-import './utils/prototypes'
+import 'src/utils/prototypes'
 
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
