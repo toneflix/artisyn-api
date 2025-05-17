@@ -95,7 +95,7 @@ const validator = <X extends InitialRules, A extends boolean = false> (
         })() as InferInput<X, A>
     } else {
         respond(validator.validate())
-        return ouputData()
+        return ouputData() as InferInput<X, A>
     }
 }
 
