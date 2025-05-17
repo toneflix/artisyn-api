@@ -6,6 +6,7 @@ import { generateAccessToken, secureOtp } from "src/utils/helpers";
 import { ApiResource } from 'src/resources/index';
 import BaseController from "src/controllers/BaseController";
 import { IUser } from "src/models/interfaces";
+import { Password } from "simple-body-validator";
 import { PrismaClient } from "@prisma/client";
 import { UAParser } from 'ua-parser-js';
 import UserResource from "src/resources/UserResource";
@@ -31,11 +32,11 @@ export default class extends BaseController {
      * @param res 
      */
     create = async (req: Request, res: Response) => {
-        const formData = this.validate(req, {
+        const formData = await this.validateAsync(req, {
             firstName: 'required|string',
             lastName: 'required|string',
-            email: 'required|email',
-            password: 'required|confirmed'
+            email: 'required|email|unique:user',
+            password: [Password.create().min(8).letters().numbers().symbols(1).mixedCase(1).rules(['required', 'confirmed'])]
         });
 
         formData.password = await argon2.hash(formData.password)

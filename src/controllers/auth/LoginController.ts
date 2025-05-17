@@ -32,7 +32,6 @@ export default class extends BaseController {
             password: 'required'
         });
 
-
         const user = await prisma.user.findFirst({
             where: {
                 email: formData.email,
