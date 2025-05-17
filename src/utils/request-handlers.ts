@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express"
 
+import { BaseError } from "./errors";
 import { Prisma } from "@prisma/client";
-import { ValidationError } from "./errors";
 import { env } from "./helpers";
 
-export const ErrorHandler = (err: ValidationError, req: Request, res: Response, next: NextFunction) => {
+export const ErrorHandler = (err: BaseError, req: Request, res: Response, next?: NextFunction) => {
     const errStatus = err.statusCode || 500;
     const errMsg = err.message || 'Something went wrong';
 

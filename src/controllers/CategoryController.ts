@@ -1,0 +1,68 @@
+import { Request, Response } from "express";
+import { ApiResource } from 'src/resources/index';
+
+import CategoryCollection from "src/resources/CategoryCollection";
+import CategoryResource from "src/resources/CategoryResource";
+import { PrismaClient } from "@prisma/client";
+import BaseController from "./BaseController";
+
+const prisma = new PrismaClient();
+
+/**
+ * Admin/CategoryController
+ */
+export default class extends BaseController {
+    /**
+     * Get all resource from the database
+     * 
+     * @param req 
+     * @param res 
+     */
+    index = async (req: Request, res: Response) => {
+
+        const orderBy = {
+            id: 'id',
+            name: 'name',
+        }[String(req.query.orderBy ?? 'id')] ?? 'id';
+
+        ApiResource(new CategoryCollection(req, res, {
+            data: await prisma.category.findMany(
+                {
+                    orderBy: { [orderBy]: req.query.orderDir === 'desc' ? 'desc' : 'asc' },
+                    where: req.query.search ? { name: { contains: <string>req.query.search } } : {}
+                }
+            ),
+        }))
+            .json()
+            .status(200)
+            .additional({
+                status: 'success',
+                message: 'OK',
+                code: 200,
+            });
+    }
+
+    /**
+     * Get a specific resource from the database
+     * 
+     * @param req 
+     * @param res 
+     */
+    show = async (req: Request, res: Response) => {
+
+        const category = await prisma.category.findFirstOrThrow(
+            { where: { id: req.params.id } }
+        )
+
+        ApiResource(new CategoryResource(req, res, {
+            data: category,
+        }))
+            .json()
+            .status(200)
+            .additional({
+                status: 'success',
+                message: 'OK',
+                code: 200,
+            });
+    }
+}
