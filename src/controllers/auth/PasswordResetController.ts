@@ -4,6 +4,7 @@ import { RequestError, ValidationError } from "src/utils/errors";
 import { ApiResource } from 'src/resources/index';
 import BaseController from "src/controllers/BaseController";
 import { IUser } from "src/models/interfaces";
+import { Password } from "simple-body-validator";
 import { PrismaClient } from "@prisma/client";
 import Resource from 'src/resources/index';
 import UserResource from "src/resources/UserResource";
@@ -70,7 +71,7 @@ export default class extends BaseController {
         const { code, email, password } = this.validate(req, {
             email: 'required|string',
             code: 'required|string',
-            password: 'string|min:8|confirmed',
+            password: [Password.create().min(8).letters().numbers().symbols(1).mixedCase(1).rules(['required', 'confirmed'])]
         });
 
         const check = await prisma.passwordCodeResets.findFirst({
