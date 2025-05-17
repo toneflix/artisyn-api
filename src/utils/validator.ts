@@ -68,11 +68,6 @@ const validator = <X extends InitialRules, A extends boolean = false> (
     async: A
 ): InferInput<X, A> => {
 
-    const validator = make()
-        .setData(data ?? {})
-        .setRules(rules);
-
-
     const castValue = (value: any, fieldRules: string[]): any => {
         if (fieldRules.includes('boolean')) {
             return ['1', 1, true, 'true'].includes(value) ? true : false;
@@ -83,20 +78,28 @@ const validator = <X extends InitialRules, A extends boolean = false> (
         return String(value); // Default to string
     };
 
-    const ouputData = () => {
+    const ouputData = (filter = true) => {
         const result = {} as InferInput<X, false>;
 
         if (!data) return {}
 
         for (const key of Object.keys(rules) as (keyof X)[]) {
-            if (data[key as string] !== undefined) {
+            if (data[key as string] !== undefined || filter === false) {
                 const fieldRules = Array.isArray(rules[key]) ? rules[key] : rules[key].toString().split('|');
                 result[key] = castValue(data[key as string], fieldRules);
             }
         }
 
+        if (filter === false) {
+            return Object.assign(data, result)
+        }
+
         return result;
     }
+
+    const validator = make()
+        .setData(ouputData(false))
+        .setRules(rules);
 
     const respond = (isValid: boolean) => {
         if (!isValid) {
