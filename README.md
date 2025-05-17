@@ -14,7 +14,7 @@ Artisyn is a decentralised protocol built on Starknet that connects local artisa
 
 ## Documentation
 
-- [Read Documentation](specs)
+- [Read Documentation](docs)
 
 ## Install the dependencies
 
