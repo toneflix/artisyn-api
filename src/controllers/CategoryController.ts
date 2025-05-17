@@ -19,19 +19,30 @@ export default class extends BaseController {
      * @param res 
      */
     index = async (req: Request, res: Response) => {
+        const { take, skip, meta } = this.pagination(req)
 
         const orderBy = {
             id: 'id',
             name: 'name',
         }[String(req.query.orderBy ?? 'id')] ?? 'id';
 
+        const query = {
+            where: req.query.search ? { name: { contains: <string>req.query.search } } : {}
+        }
+
+        const [data, total] = await Promise.all([
+            prisma.category.findMany({
+                ...query,
+                orderBy: { [orderBy]: req.query.orderDir === 'desc' ? 'desc' : 'asc' },
+                take,
+                skip,
+            }),
+            prisma.category.count()
+        ])
+
         ApiResource(new CategoryCollection(req, res, {
-            data: await prisma.category.findMany(
-                {
-                    orderBy: { [orderBy]: req.query.orderDir === 'desc' ? 'desc' : 'asc' },
-                    where: req.query.search ? { name: { contains: <string>req.query.search } } : {}
-                }
-            ),
+            data,
+            pagination: meta(total, data.length)
         }))
             .json()
             .status(200)

@@ -1,9 +1,15 @@
+import { RequestError, ValidationError } from "src/utils/errors";
+
 import { Request } from "express";
-import { ValidationError } from "src/utils/errors";
 import Validator from "validatorjs";
 
 export default class {
-    constructor() { }
+    request?: Request | undefined;
+
+    constructor(req?: Request) {
+        this.request = req
+    }
+
     validate<X extends Validator.Rules> (req: Request, rules: X): { [P in keyof X]: string } {
 
         let validator = new Validator(req.body, rules);
@@ -31,5 +37,28 @@ export default class {
 
                 return Object.assign({}, acc, { [cur]: value })
             }, {} as { [P in keyof X]: string })
+    }
+
+    pagination (req?: Request) {
+        this.request = req
+
+        // Get page and limit from query parameters, with defaults
+        const page = parseInt(String(this.request?.query?.page)) || 1;
+        const limit = parseInt(String(this.request?.query?.limit)) || 15;
+
+        // Ensure valid inputs
+        RequestError.abortIf(page < 1 || limit < 1, "Page and limit must be positive integers", 400)
+
+        // Convert to Prisma pagination parameters
+        const take = limit;
+        const skip = (page - 1) * limit;
+        const meta = (total: number, count: number) => ({
+            perPage: limit,
+            total,
+            from: total > 0 ? skip + 1 : 0,
+            to: Math.min(skip + count, total),
+        })
+
+        return { take, skip, meta }
     }
 }
