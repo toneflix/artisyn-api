@@ -37,7 +37,7 @@ export default class extends BaseController {
                 take,
                 skip,
             }),
-            prisma.category.count()
+            prisma.category.count(query)
         ])
 
         ApiResource(new CategoryCollection(req, res, {
