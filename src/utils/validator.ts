@@ -7,8 +7,16 @@ type InferInput<X, A extends boolean = false> = A extends true
     ? Promise<{ [P in keyof X]: any }>
     : { [P in keyof X]: any }
 
-const modelExists = async (rule: 'unique' | 'exists', value: any, field: string, modelName?: string) => {
+const modelExists = async (
+    rule: 'unique' | 'exists',
+    value: any,
+    field: string,
+    modelName?: string,
+    exception?: (string | undefined)[]
+) => {
     const prisma = new PrismaClient();
+
+    const [except, exceptField]: string[] = exception?.filter(e => typeof e == 'string') ?? []
 
     try {
         if (!modelName) {
@@ -17,11 +25,22 @@ const modelExists = async (rule: 'unique' | 'exists', value: any, field: string,
         }
 
         const model: { count: (q: any) => Promise<number> } = (prisma as any)[modelName]
-        const count = await model.count({ where: { [field]: value } })
+        const count = await model.count({
+            where: except ? {
+                [field]: value,
+                [exceptField ?? 'id']: { not: except },
+            } : {
+                [field]: value
+            },
+        })
 
         return count >= 1
     } catch (error) {
-        console.log(`Could not load ${rule} rule`, error);
+        console.log(
+            `Could not load ${rule} rule:`,
+            (error as any).message + ',',
+            `${modelName} is probably not a valid model.`
+        );
         return false;
     }
 }
@@ -34,12 +53,12 @@ setTranslationObject({
 });
 
 register('unique', async function (value, parameters, attribute) {
-    const [modelName, field] = parameters ?? [];
-    return (await modelExists('exists', value, field ?? attribute, modelName)) === false
+    const [modelName, field, except, exceptField] = parameters ?? [];
+    return (await modelExists('exists', value, field ?? attribute, modelName, [except, exceptField])) === false
 });
 
 register('exists', async function (value, parameters, attribute) {
-    const [modelName, field] = parameters ?? [];
+    const [modelName, field, except] = parameters ?? [];
     return (await modelExists('exists', value, field ?? attribute, modelName)) === true
 });
 

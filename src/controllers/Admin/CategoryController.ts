@@ -94,7 +94,7 @@ export default class extends BaseController {
             icon: 'nullable|string|min:3',
             description: 'nullable|string|min:10',
         });
-        console.log(formData)
+
         if (await prisma.category.count({ where: { name: formData.name } })) {
             ValidationError.withMessages({ name: [`There is already a category named ${formData.name}`] })
         }
@@ -126,10 +126,10 @@ export default class extends BaseController {
             { where: { id: req.params.id } }
         )
 
-        const formData = this.validate(req, {
-            name: 'required|string|min:3',
-            icon: 'string|min:3',
-            description: 'string|min:10',
+        const formData = await this.validateAsync(req, {
+            name: `required|string|unique:category,name,${req.params.id},id|min:3`,
+            icon: 'nullable|string|min:3',
+            description: 'nullable|string|min:10',
         });
 
         const data = await prisma.category.update({
