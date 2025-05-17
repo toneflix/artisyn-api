@@ -31,8 +31,8 @@ describe('Test controllers', () => {
             email: 'aq@e.com',
             lastName: 'Test',
             firstName: 'User',
-            password: 'password1',
-            password_confirmation: 'password1',
+            password: 'Password123#',
+            password_confirmation: 'Password123#',
         });
 
         user = response.body.data
@@ -44,7 +44,7 @@ describe('Test controllers', () => {
     it('should allow login', async () => {
         const response = await request(app).post('/login').send({
             email: 'aq@e.com',
-            password: 'password1',
+            password: 'Password123#',
         });
 
         expect(response.body.data.email).toBe('aq@e.com');
