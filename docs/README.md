@@ -4,8 +4,8 @@
 
 1. [Schema](schema.md)
 2. [Response Format](RESPONSE.md)
-3. [Routing](routing.md)
-4. [Controller Format](CONTROLLERS.md)
+3. [Controller Format](CONTROLLERS.md)
+4. [Routing](routing.md)
 5. [API Endpoints](ENDPOINTS.md)
 6. [Documenting](ENDPOINTS.md)
 
