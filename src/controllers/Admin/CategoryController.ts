@@ -5,6 +5,7 @@ import BaseController from "../BaseController";
 import CategoryCollection from "src/resources/CategoryCollection";
 import CategoryResource from "src/resources/CategoryResource";
 import { PrismaClient } from "@prisma/client";
+import { ValidationError } from "src/utils/errors";
 
 const prisma = new PrismaClient();
 
@@ -94,6 +95,10 @@ export default class extends BaseController {
             icon: 'string|min:3',
             description: 'string|min:10',
         });
+
+        if (await prisma.category.count({ where: { name: formData.name } })) {
+            ValidationError.withMessages({ name: [`There is already a category named ${formData.name}`] })
+        }
 
         const data = await prisma.category.create({
             data: formData,
