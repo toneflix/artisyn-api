@@ -2,10 +2,12 @@
 
 ## TABLE OF CONTENT
 
-1. [Response Format](RESPONSE.md)
-2. [Controller Format](CONTROLLERS.md)
-3. [API Endpoints](ENDPOINTS.md)
-4. [Documenting](ENDPOINTS.md)
+1. [Schema](schema.md)
+2. [Response Format](RESPONSE.md)
+3. [Routing](routing.md)
+4. [Controller Format](CONTROLLERS.md)
+5. [API Endpoints](ENDPOINTS.md)
+6. [Documenting](ENDPOINTS.md)
 
 ## Documenting
 
