@@ -75,7 +75,7 @@ const validator = <X extends InitialRules, A extends boolean = false> (
         if (fieldRules.includes('integer') || fieldRules.includes('numeric')) {
             return parseInt(value, 10) || 0; // Fallback to 0 if invalid
         }
-        if (value === undefined) {
+        if (value === undefined || typeof value === 'object') {
             return value;
         }
         return String(value); // Default to string
@@ -86,13 +86,15 @@ const validator = <X extends InitialRules, A extends boolean = false> (
 
         if (!data) return {}
 
-        for (const key of Object.keys(rules) as (keyof X)[]) {
+        for (const keyX of Object.keys(rules) as (keyof X)[]) {
+            const key = keyX.toString().split('.').at(0) as string
+
             if (data[key as string] !== undefined || filter === false) {
                 const fieldRules = Array.isArray(rules[key]) ? rules[key] : rules[key].toString().split('|');
-                result[key] = castValue(data[key as string], fieldRules);
+                result[key as typeof keyX] = castValue(data[key as string], fieldRules);
             }
         }
-        console.log(Object.assign(data, result))
+
         if (filter === false) {
             return Object.assign(data, result)
         }
