@@ -157,6 +157,7 @@ model Artisan {
   name          String
   email         String?
   phone         String?
+  avatar        String?
   type          ArtisanType @default(PERSON)
   description   String
   price         Float? // Optional price if fixed
@@ -167,6 +168,7 @@ model Artisan {
   subcategoryId String?
   locationId    String
   isActive      Boolean     @default(true)
+  isVerified    Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 

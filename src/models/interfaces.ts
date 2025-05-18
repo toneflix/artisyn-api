@@ -95,6 +95,7 @@ export interface IArtisan {
   name: string;
   email?: string;
   phone?: string;
+  avatar: string | null;
   type: ArtisanType;
   description: string;
   price?: number;
@@ -105,6 +106,7 @@ export interface IArtisan {
   subcategoryId?: string;
   locationId: string;
   isActive: boolean;
+  isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
