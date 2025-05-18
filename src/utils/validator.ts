@@ -75,6 +75,9 @@ const validator = <X extends InitialRules, A extends boolean = false> (
         if (fieldRules.includes('integer') || fieldRules.includes('numeric')) {
             return parseInt(value, 10) || 0; // Fallback to 0 if invalid
         }
+        if (value === undefined) {
+            return value;
+        }
         return String(value); // Default to string
     };
 
@@ -89,7 +92,7 @@ const validator = <X extends InitialRules, A extends boolean = false> (
                 result[key] = castValue(data[key as string], fieldRules);
             }
         }
-
+        console.log(Object.assign(data, result))
         if (filter === false) {
             return Object.assign(data, result)
         }
