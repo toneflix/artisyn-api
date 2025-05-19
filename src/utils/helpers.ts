@@ -74,7 +74,9 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
             RequestError.abortIf(!!err, "Unauthenticated", 401)
 
             const prisma = new PrismaClient();
-            const accessToken = await prisma.personalAccessToken.findFirst({ where: { token }, include: { user: true } })
+            const accessToken = await prisma.personalAccessToken.findFirst({
+                where: { token }, include: { user: { include: { curator: true } } },
+            })
             const user = accessToken?.user
 
             if (user || isPast(constructFrom(accessToken?.expiresAt!, new Date())!)) {

@@ -16,6 +16,7 @@ export default class extends JsonResource {
             avatar: this.avatar,
             bio: this.bio,
             phone: this.phone,
+            curator: this.curator,
             verified: !!this.emailVerifiedAt,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,

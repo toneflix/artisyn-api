@@ -6,7 +6,7 @@ import { Router } from 'express';
 const router = Router();
 const routesPath = __dirname;
 
-function loadRoutes (dirPath: string) {
+export const loadRoutes = (dirPath: string) => {
     readdirSync(dirPath)
         .forEach((file) => {
             const fullPath = join(dirPath, file);
@@ -38,7 +38,5 @@ function loadRoutes (dirPath: string) {
             }
         });
 }
-
-loadRoutes(routesPath);
 
 export default router;

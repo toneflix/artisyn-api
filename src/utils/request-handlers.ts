@@ -4,17 +4,17 @@ import { BaseError } from "./errors";
 import { Prisma } from "@prisma/client";
 import { env } from "./helpers";
 
-export const ErrorHandler = (err: BaseError, req: Request, res: Response, next?: NextFunction) => {
-    const errStatus = err.statusCode || 500;
-    const errMsg = err.message || 'Something went wrong';
+export const ErrorHandler = (err: BaseError | string, req: Request, res: Response, next?: NextFunction) => {
+
+    const message = 'Something went wrong';
 
     const error: Record<string, any> = {
         status: 'error',
-        code: errStatus,
-        message: errMsg,
+        code: typeof err === 'string' || !err.statusCode ? 500 : err.statusCode,
+        message: typeof err === 'string' ? `${message}: ${err}` : err.message || message,
     }
 
-    if (err.errors) {
+    if (typeof err !== 'string' && err.errors) {
         error.errors = err.errors
     }
 
@@ -23,7 +23,7 @@ export const ErrorHandler = (err: BaseError, req: Request, res: Response, next?:
         error.message = `${err.meta?.modelName} not found!`
     }
 
-    if (env('NODE_ENV') === 'development' && env<boolean>('HIDE_ERROR_STACK') !== true) {
+    if (typeof err !== 'string' && env('NODE_ENV') === 'development' && env<boolean>('HIDE_ERROR_STACK') !== true) {
         error.stack = err.stack
     }
 

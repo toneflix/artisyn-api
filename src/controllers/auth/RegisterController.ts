@@ -1,3 +1,4 @@
+import { Prisma, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { RequestError, ValidationError } from "src/utils/errors";
 import { constructFrom, differenceInMinutes } from "date-fns";
@@ -7,7 +8,6 @@ import { ApiResource } from 'src/resources/index';
 import BaseController from "src/controllers/BaseController";
 import { IUser } from "src/models/interfaces";
 import { Password } from "simple-body-validator";
-import { PrismaClient } from "@prisma/client";
 import { UAParser } from 'ua-parser-js';
 import UserResource from "src/resources/UserResource";
 import argon2 from 'argon2';
@@ -36,18 +36,36 @@ export default class extends BaseController {
             firstName: 'required|string',
             lastName: 'required|string',
             email: 'required|email|unique:user',
-            password: [Password.create().min(8).letters().numbers().symbols(1).mixedCase(1).rules(['required', 'confirmed'])]
+            type: 'nullable|string|in:finder,curator',
+            experience: 'nullable|required_if:type,curator|integer|min:0',
+            specialties: 'nullable|required_if:type,curator|array',
+            'specialties.*': 'required|string',
+            password: [Password.create().min(8).letters().numbers().symbols(1).mixedCase(1).rules(['required', 'confirmed'])],
         });
 
         formData.password = await argon2.hash(formData.password)
         const otp = secureOtp();
 
+        /**
+         * Create the user account
+         */
         const data = await prisma.user.create({
-            data: {
-                ...formData,
+            data: Object.assign({}, formData, {
                 emailVerificationCode: otp,
-                updatedAt: new Date()
-            },
+                updatedAt: new Date(),
+                type: undefined,
+                experience: undefined,
+                specialties: undefined,
+                curator: formData.type === 'curator' ? {
+                    create: {
+                        specialties: formData.specialties,
+                        experience: formData.experience,
+                    }
+                } : undefined
+            }),
+            include: {
+                curator: formData.type === 'curator'
+            }
         })
 
         const { device, ua } = UAParser(req.headers['user-agent']);
@@ -142,7 +160,7 @@ export default class extends BaseController {
             });
     }
 
-    #sendMail = async (otp: string, data: IUser) => {
+    #sendMail = async (otp: string, data: Omit<IUser, 'curator'>) => {
         const hashBuffer = await argon2.hash(otp); // Buffer
         const hashEncoded = base64url.encode(hashBuffer); // URL-safe string
         const link = `${config('app.front_url')}/account/verify/email?token=${hashEncoded.split('|').at(-1)}`

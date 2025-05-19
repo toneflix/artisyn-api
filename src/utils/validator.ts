@@ -65,15 +65,20 @@ register('exists', async function (value, parameters, attribute) {
 const validator = <X extends InitialRules, A extends boolean = false> (
     data: { [key: string]: any } | undefined,
     rules: X,
-    async: A
+    async: A,
+    attrs?: { [key: string]: string },
+    msgs?: { [key: string]: string },
 ): InferInput<X, A> => {
 
     const castValue = (value: any, fieldRules: string[]): any => {
-        if (fieldRules.includes('boolean')) {
+        if (fieldRules.includes('boolean') && value !== undefined) {
             return ['1', 1, true, 'true'].includes(value) ? true : false;
         }
         if (fieldRules.includes('integer') || fieldRules.includes('numeric')) {
             return parseInt(value, 10) || 0; // Fallback to 0 if invalid
+        }
+        if (value === undefined || typeof value === 'object') {
+            return value;
         }
         return String(value); // Default to string
     };
@@ -83,10 +88,12 @@ const validator = <X extends InitialRules, A extends boolean = false> (
 
         if (!data) return {}
 
-        for (const key of Object.keys(rules) as (keyof X)[]) {
+        for (const keyX of Object.keys(rules) as (keyof X)[]) {
+            const key = keyX.toString().split('.').at(0) as string
+
             if (data[key as string] !== undefined || filter === false) {
                 const fieldRules = Array.isArray(rules[key]) ? rules[key] : rules[key].toString().split('|');
-                result[key] = castValue(data[key as string], fieldRules);
+                result[key as typeof keyX] = castValue(data[key as string], fieldRules);
             }
         }
 
@@ -99,7 +106,9 @@ const validator = <X extends InitialRules, A extends boolean = false> (
 
     const validator = make()
         .setData(ouputData(false))
-        .setRules(rules);
+        .setRules(rules)
+        .setCustomAttributes(attrs)
+        .setCustomMessages(msgs);
 
     const respond = (isValid: boolean) => {
         if (!isValid) {
@@ -126,10 +135,14 @@ const validator = <X extends InitialRules, A extends boolean = false> (
 
 export const validate = <X extends InitialRules> (
     data: { [key: string]: any },
-    rules: X
-) => validator(data, rules, false)
+    rules: X,
+    attrs?: { [key: string]: string },
+    msgs?: { [key: string]: string },
+) => validator(data, rules, false, attrs, msgs)
 
 export const validateAsync = async <X extends InitialRules> (
     data: { [key: string]: any },
-    rules: X
-) => await validator(data, rules, true)
+    rules: X,
+    attrs?: { [key: string]: string },
+    msgs?: { [key: string]: string },
+) => await validator(data, rules, true, attrs, msgs)
