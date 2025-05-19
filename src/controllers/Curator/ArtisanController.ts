@@ -42,7 +42,7 @@ export default class extends BaseController {
         const { filter, filters: filtersJson, filterBy }: { filter: string, filterBy: string, filters: string } = validate(req.query, {
             filter: `nullable|required_with:filterBy|string${_in}`,
             filters: `nullable|json`,
-            filterBy: ['nullable', 'string', 'in:type,archived,isVerified,category,country,state,city']
+            filterBy: ['nullable', 'string', 'in:type,archived,isActive,isVerified,category,country,state,city']
         })
 
         const defaultQuery = {
@@ -69,6 +69,7 @@ export default class extends BaseController {
             return {
                 type: { type: <ArtisanType>value },
                 isVerified: { isVerified: value === 'true' },
+                isActive: { isActive: value === 'true' },
                 category: { category: { name: { equals: <string>value, mode: <QM>'insensitive' } } },
                 country: { location: { country: { equals: <string>value, mode: <QM>'insensitive' } } },
                 state: { location: { state: { equals: <string>value, mode: <QM>'insensitive' } } },
