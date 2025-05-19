@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 
 import BaseController from "src/controllers/BaseController";
-import { PrismaClient } from "@prisma/client";
+import { ArtisanType, PrismaClient, Prisma } from "@prisma/client";
 import Resource from 'src/resources/index';
 import { regex } from "simple-body-validator";
+import { validate } from "src/utils/validator";
 
 const prisma = new PrismaClient();
 
@@ -19,15 +20,85 @@ export default class extends BaseController {
      */
     index = async (req: Request, res: Response) => {
 
+        // Build the search query
+        const search = req.query.search ? {
+            OR: [
+                { name: { contains: <string>req.query.search } },
+                { category: { name: { contains: <string>req.query.search } } },
+                {
+                    location: {
+                        OR: [
+                            { address: { contains: <string>req.query.search } },
+                            { country: { contains: <string>req.query.search } },
+                            { state: { contains: <string>req.query.search } },
+                            { city: { contains: <string>req.query.search } },
+                        ]
+                    }
+                }]
+        } : {}
+
+        // Validate the filter query
+        const _in = req.query.filterBy === 'type' ? '|in:BUSINESS,PERSON' : ''
+        const { filter, filters: filtersJson, filterBy }: { filter: string, filterBy: string, filters: string } = validate(req.query, {
+            filter: `nullable|required_with:filterBy|string${_in}`,
+            filters: `nullable|json`,
+            filterBy: ['nullable', 'string', 'in:type,isVerified,category,country,state,city']
+        })
+
+        // Build the filter query
+        const filters = (filterBy?: string, value?: string) => {
+            value ??= filter
+            if (!value) return {};
+            if (filterBy === 'priceRange') {
+                const PRICE_RANGE_REGEX = /^\d{1,3}(,\d{3})*(\.\d{1,2})?-\d{1,3}(,\d{3})*(\.\d{1,2})?$/;
+
+                if (!PRICE_RANGE_REGEX.test(value)) return {};
+                const [gteStr, lteStr] = value.split('-');
+                const gte = parseFloat(gteStr.replace(/,/g, '')); // Remove commas
+                const lte = parseFloat(lteStr.replace(/,/g, '')); // Remove commas
+                if (isNaN(gte) || isNaN(lte) || gte > lte) return {};
+                return { priceRange: { gte, lte } };
+            }
+            type QM = Prisma.QueryMode
+            return {
+                type: { type: <ArtisanType>value },
+                isVerified: { isVerified: value === 'true' },
+                category: { category: { name: { equals: <string>value, mode: <QM>'insensitive' } } },
+                country: { location: { country: { equals: <string>value, mode: <QM>'insensitive' } } },
+                state: { location: { state: { equals: <string>value, mode: <QM>'insensitive' } } },
+                city: { location: { city: { equals: <string>value, mode: <QM>'insensitive' } } },
+            }[filterBy ?? 'none'] ?? {};
+        };
+
+        const filterArgs = filters(filterBy)
+        let filterArgsList: (typeof filterArgs)[] = []
+
+        // Validate the filters query array
+        if (filtersJson) {
+            const { filters: filterList }: { filters: { [k: string]: string }[] } = validate({ filters: JSON.parse(filtersJson) }, {
+                filters: ['required', 'array'],
+                'filters.*.*': ['required', 'string'],
+                'filters.*.type': ['nullable', 'in:BUSINESS,PERSON'],
+            })
+
+            filterArgsList = filterList.map(e => filters(Object.keys(e).at(0), Object.values(e).at(0)))
+        }
+
         Resource(req, res, {
             data: await prisma.artisan.findMany(
                 {
-                    where: {
+                    where: Object.assign({}, search, {
                         curator: {
-                            id: req.user?.id
-                        }
+                            id: req.user?.id,
+                        },
+                        ...filters(filterBy),
+                        AND: filterArgsList
+                    }),
+                    orderBy: { id: 'asc' },
+                    include: {
+                        category: true,
+                        location: true,
                     },
-                    orderBy: { id: 'asc' }
                 }
             ),
         })
@@ -53,9 +124,13 @@ export default class extends BaseController {
                     where: {
                         id: req.params.id || '-',
                         curator: {
-                            id: req.user?.curator?.id
+                            id: req.user?.id
                         }
-                    }
+                    },
+                    include: {
+                        category: true,
+                        location: true,
+                    },
                 }
             ),
         })
@@ -79,51 +154,15 @@ export default class extends BaseController {
      * @param res 
      */
     create = async (req: Request, res: Response) => {
-        console.log(req.body)
-        const data = await this.validateAsync(req, {
-            name: `required|string|unique:artisan|min:3`,
-            email: 'nullable|required_without:phone|email|unique:artisan',
-            phone: 'nullable|required_without:email|unique:artisan',
-            price: 'nullable|string|min:0',
-            price_range: ['nullable', 'string', regex(/^\d{1,3}(,\d{3})*(\.\d{1,2})?-\d{1,3}(,\d{3})*(\.\d{1,2})?$/)],
-            type: 'nullable|string|in:PERSON,BUSINESS',
-            description: 'required|string|min:10',
-            category_id: 'required|exists:category,id',
-            country: 'required|string',
-            state: 'required|string',
-            city: 'required|string',
-        });
-
-        const artisan = await prisma.artisan.create({
-            data: Object.assign({}, data, {
-                curator: { connect: { id: req.user?.id! } },
-                category: { connect: { id: data.category_id } },
-                priceRange: (data.price_range ?? '').replaceAll(' ', '').split('-').map((e: string) => parseFloat(e)),
-                price: parseFloat(data.price ?? '0'),
-                price_range: undefined,
-                category_id: undefined,
-                country: undefined,
-                state: undefined,
-                city: undefined,
-                location: {
-                    create: {
-                        country: data.country,
-                        state: data.state,
-                        city: data.city,
-                        latitude: 0,
-                        longitude: 0,
-                    }
-                }
-            }),
+        const data = await prisma.artisan.create({
+            data: await this.buildData(req),
             include: {
                 category: true,
                 location: true,
             },
         })
 
-        Resource(req, res, {
-            data: artisan,
-        })
+        Resource(req, res, { data })
             .json()
             .status(201)
             .additional({
@@ -140,19 +179,58 @@ export default class extends BaseController {
      * @param res 
      */
     update = async (req: Request, res: Response) => {
+
         const data = await prisma.artisan.update({
-            where: { id: req.params.id },
-            data: req.body(),
+            data: await this.buildData(req),
+            where: {
+                id: req.params.id || '-',
+                curator: {
+                    id: req.user?.id
+                }
+            },
+            include: {
+                category: true,
+                location: true,
+            },
         })
 
-        Resource(req, res, {
-            data,
-        })
+        Resource(req, res, { data })
             .json()
             .status(202)
             .additional({
                 status: 'success',
-                message: 'artisan updated successfully',
+                message: 'Artisan updated successfully',
+                code: 202,
+            });
+    }
+
+    /**
+     * Set the activation status of a specific resource in the database
+     * 
+     * @param req 
+     * @param res 
+     */
+    activation = async (req: Request, res: Response) => {
+        const { active: isActive } = this.validate(req, {
+            active: 'required|boolean',
+        });
+
+        const data = await prisma.artisan.update({
+            data: { isActive },
+            where: {
+                id: req.params.id || '-',
+                curator: {
+                    id: req.user?.id
+                }
+            },
+        })
+
+        Resource(req, res, { data })
+            .json()
+            .status(202)
+            .additional({
+                status: 'success',
+                message: `Artisan ${!isActive ? 'de' : ''}activated successfully`,
                 code: 202,
             });
     }
@@ -164,9 +242,14 @@ export default class extends BaseController {
      * @param res 
      */
     delete = async (req: Request, res: Response) => {
-        await prisma.artisan.delete(
-            { where: { id: req.params.id } }
-        )
+        await prisma.artisan.delete({
+            where: {
+                id: req.params.id || '-',
+                curator: {
+                    id: req.user?.id
+                }
+            }
+        })
 
         Resource(req, res, {
             data: {},
@@ -178,5 +261,46 @@ export default class extends BaseController {
                 message: 'artisan deleted successfully',
                 code: 202,
             });
+    }
+
+    buildData = async (req: Request) => {
+
+        const data = await this.validateAsync(req, {
+            name: `required|string|unique:artisan|min:3`,
+            email: 'nullable|required_without:phone|email|unique:artisan',
+            phone: 'nullable|required_without:email|unique:artisan',
+            price: 'nullable|string|min:0',
+            price_range: ['nullable', 'string', regex(/^\d{1,3}(,\d{3})*(\.\d{1,2})?-\d{1,3}(,\d{3})*(\.\d{1,2})?$/)],
+            type: 'nullable|string|in:PERSON,BUSINESS',
+            description: 'required|string|min:10',
+            category_id: 'required|exists:category,id',
+            country: 'required|string',
+            state: 'required|string',
+            city: 'required|string',
+            address: 'nullable|required_if:type,BUSINESS',
+        });
+
+        return Object.assign({}, data, {
+            curator: { connect: { id: req.user?.id! } },
+            category: { connect: { id: data.category_id } },
+            priceRange: (data.price_range ?? '').replaceAll(' ', '').split('-').map((e: string) => parseFloat(e)),
+            price: parseFloat(data.price ?? '0'),
+            price_range: undefined,
+            category_id: undefined,
+            address: undefined,
+            country: undefined,
+            state: undefined,
+            city: undefined,
+            location: {
+                create: {
+                    address: data.address?.trim(),
+                    country: data.country?.trim(),
+                    state: data.state?.trim(),
+                    city: data.city?.trim(),
+                    latitude: 0,
+                    longitude: 0,
+                }
+            }
+        })
     }
 }

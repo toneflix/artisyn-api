@@ -1,0 +1,7 @@
+*
+!artisans/
+!media/
+!.gitignore
+!.gitkeep
+!logo*.svg
+!logo*.png

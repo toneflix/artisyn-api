@@ -65,7 +65,9 @@ register('exists', async function (value, parameters, attribute) {
 const validator = <X extends InitialRules, A extends boolean = false> (
     data: { [key: string]: any } | undefined,
     rules: X,
-    async: A
+    async: A,
+    attrs?: { [key: string]: string },
+    msgs?: { [key: string]: string },
 ): InferInput<X, A> => {
 
     const castValue = (value: any, fieldRules: string[]): any => {
@@ -104,7 +106,9 @@ const validator = <X extends InitialRules, A extends boolean = false> (
 
     const validator = make()
         .setData(ouputData(false))
-        .setRules(rules);
+        .setRules(rules)
+        .setCustomAttributes(attrs)
+        .setCustomMessages(msgs);
 
     const respond = (isValid: boolean) => {
         if (!isValid) {
@@ -131,10 +135,14 @@ const validator = <X extends InitialRules, A extends boolean = false> (
 
 export const validate = <X extends InitialRules> (
     data: { [key: string]: any },
-    rules: X
-) => validator(data, rules, false)
+    rules: X,
+    attrs?: { [key: string]: string },
+    msgs?: { [key: string]: string },
+) => validator(data, rules, false, attrs, msgs)
 
 export const validateAsync = async <X extends InitialRules> (
     data: { [key: string]: any },
-    rules: X
-) => await validator(data, rules, true)
+    rules: X,
+    attrs?: { [key: string]: string },
+    msgs?: { [key: string]: string },
+) => await validator(data, rules, true, attrs, msgs)
