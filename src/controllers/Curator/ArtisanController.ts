@@ -84,23 +84,38 @@ export default class extends BaseController {
             filterArgsList = filterList.map(e => filters(Object.keys(e).at(0), Object.values(e).at(0)))
         }
 
+        const where = Object.assign({}, search, {
+            curator: {
+                id: req.user?.id,
+            },
+            ...filters(filterBy),
+            AND: filterArgsList
+        })
+
+        const orderBy = {
+            id: 'id',
+            name: 'name',
+        }[String(req.query.orderBy ?? 'id')] ?? 'id';
+
+        const { take, skip, meta } = this.pagination(req)
+
+        const [data, total] = await Promise.all([
+            prisma.artisan.findMany({
+                take,
+                skip,
+                where,
+                orderBy: { [orderBy]: req.query.orderDir === 'desc' ? 'desc' : 'asc' },
+                include: {
+                    category: true,
+                    location: true,
+                },
+            }),
+            prisma.artisan.count({ where })
+        ])
+
         Resource(req, res, {
-            data: await prisma.artisan.findMany(
-                {
-                    where: Object.assign({}, search, {
-                        curator: {
-                            id: req.user?.id,
-                        },
-                        ...filters(filterBy),
-                        AND: filterArgsList
-                    }),
-                    orderBy: { id: 'asc' },
-                    include: {
-                        category: true,
-                        location: true,
-                    },
-                }
-            ),
+            data,
+            pagination: meta(total, data.length)
         })
             .json()
             .status(200)
