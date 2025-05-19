@@ -160,7 +160,7 @@ export default class extends BaseController {
             });
     }
 
-    #sendMail = async (otp: string, data: IUser) => {
+    #sendMail = async (otp: string, data: Omit<IUser, 'curator'>) => {
         const hashBuffer = await argon2.hash(otp); // Buffer
         const hashEncoded = base64url.encode(hashBuffer); // URL-safe string
         const link = `${config('app.front_url')}/account/verify/email?token=${hashEncoded.split('|').at(-1)}`

@@ -44,7 +44,7 @@ export interface IUser {
   emailVerificationCode: string | null;
 
   // Relations
-  // curator: ICurator;
+  curator: ICurator | null;
   // artisans: IArtisan[]
   // reviews: IReview[]
   // receivedReviews: IReview[]
@@ -57,12 +57,12 @@ export interface IUser {
 export interface ICurator {
   id: string;
   userId: string;
-  verificationStatus: VerificationStatus;
+  verificationStatus: $Enums.VerificationStatus
   specialties: string[];
   experience: number;
-  portfolio?: string;
+  portfolio?: string | null;
   certificates: string[];
-  verifiedAt?: Date;
+  verifiedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

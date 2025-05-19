@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import BaseController from "src/controllers/BaseController";
 import { PrismaClient } from "@prisma/client";
 import Resource from 'src/resources/index';
+import { regex } from "simple-body-validator";
 
 const prisma = new PrismaClient();
 
@@ -52,7 +53,7 @@ export default class extends BaseController {
                     where: {
                         id: req.params.id || '-',
                         curator: {
-                            id: req.user?.id
+                            id: req.user?.curator?.id
                         }
                     }
                 }
@@ -78,14 +79,47 @@ export default class extends BaseController {
      * @param res 
      */
     create = async (req: Request, res: Response) => {
-
+        console.log(req.body)
         const data = await this.validateAsync(req, {
             name: `required|string|unique:artisan|min:3`,
-            email: 'nullable|email|unique:artisan',
-            description: 'nullable|string|min:10',
-        }) as any;
+            email: 'nullable|required_without:phone|email|unique:artisan',
+            phone: 'nullable|required_without:email|unique:artisan',
+            price: 'nullable|string|min:0',
+            price_range: ['nullable', 'string', regex(/^\d{1,3}(,\d{3})*(\.\d{1,2})?-\d{1,3}(,\d{3})*(\.\d{1,2})?$/)],
+            type: 'nullable|string|in:PERSON,BUSINESS',
+            description: 'required|string|min:10',
+            category_id: 'required|exists:category,id',
+            country: 'required|string',
+            state: 'required|string',
+            city: 'required|string',
+        });
 
-        const artisan = await prisma.artisan.create({ data })
+        const artisan = await prisma.artisan.create({
+            data: Object.assign({}, data, {
+                curator: { connect: { id: req.user?.id! } },
+                category: { connect: { id: data.category_id } },
+                priceRange: (data.price_range ?? '').replaceAll(' ', '').split('-').map((e: string) => parseFloat(e)),
+                price: parseFloat(data.price ?? '0'),
+                price_range: undefined,
+                category_id: undefined,
+                country: undefined,
+                state: undefined,
+                city: undefined,
+                location: {
+                    create: {
+                        country: data.country,
+                        state: data.state,
+                        city: data.city,
+                        latitude: 0,
+                        longitude: 0,
+                    }
+                }
+            }),
+            include: {
+                category: true,
+                location: true,
+            },
+        })
 
         Resource(req, res, {
             data: artisan,
