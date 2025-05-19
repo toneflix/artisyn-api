@@ -17,7 +17,10 @@ export const googleStrategy = () => {
         async function (accessToken, refreshToken, profile, cb) {
             try {
                 const email = profile.emails?.find(e => !!e.value)?.value!
-                const user = await prisma.user.findFirst({ where: { googleId: profile.id } })
+                const user = await prisma.user.findFirst({
+                    where: { googleId: profile.id },
+                    include: { curator: true }
+                })
                 if (user) {
                     return cb(undefined, user!);
                 }
@@ -28,7 +31,8 @@ export const googleStrategy = () => {
                         email: email ?? `${profile.id}@gmail.com`,
                         password: await argon2.hash(secureOtp(32)),
                         googleId: profile.id,
-                    }
+                    },
+                    include: { curator: true }
                 })
                 return cb(undefined, cUser);
             } catch (error) {
@@ -48,7 +52,10 @@ export const facebookStrategy = () => {
         async function (accessToken, refreshToken, profile, cb) {
             try {
                 const email = profile.emails?.find(e => !!e.value)?.value!
-                const user = await prisma.user.findFirst({ where: { facebookId: profile.id } })
+                const user = await prisma.user.findFirst({
+                    where: { facebookId: profile.id },
+                    include: { curator: true }
+                })
                 if (user) {
                     return cb(undefined, user!);
                 }
@@ -59,7 +66,8 @@ export const facebookStrategy = () => {
                         email: email ?? `${profile.id}@facebook.com`,
                         password: await argon2.hash(secureOtp(32)),
                         facebookId: profile.id,
-                    }
+                    },
+                    include: { curator: true }
                 })
                 return cb(undefined, cUser);
             } catch (error) {
