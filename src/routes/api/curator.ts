@@ -9,6 +9,7 @@ const upload = multer({ dest: 'public/artisans' })
 
 router.get('/artisans', authenticateToken, new ArtisanController().index);
 router.post('/artisans', authenticateToken, upload.none(), new ArtisanController().create);
+router.post('/artisans/bulk', authenticateToken, upload.none(), new ArtisanStateController().bulk);
 router.get('/artisans/:id', authenticateToken, new ArtisanController().show);
 router.put('/artisans/:id', authenticateToken, upload.none(), new ArtisanController().update);
 router.delete('/artisans/:id', authenticateToken, upload.none(), new ArtisanController().delete);

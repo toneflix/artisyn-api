@@ -1,7 +1,7 @@
+import { Prisma, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 
 import BaseController from "src/controllers/BaseController";
-import { PrismaClient } from "@prisma/client";
 import Resource from 'src/resources/index';
 
 const prisma = new PrismaClient();
@@ -38,6 +38,52 @@ export default class extends BaseController {
             .additional({
                 status: 'success',
                 message: `Artisan ${!isActive ? 'de' : ''}activated successfully.`,
+                code: 202,
+            });
+    }
+
+    /**
+     * Perform action on bulk resources in the database
+     * 
+     * @param req 
+     * @param res 
+     */
+    bulk = async (req: Request, res: Response) => {
+        const { ids, action } = this.validate(req, {
+            ids: 'required|array',
+            'ids.*': 'required|exists:artisan,id',
+            action: 'required|string|in:delete,archive,unarchive,activate,deactivate'
+        });
+
+        let count = 0
+        let build: Prisma.ArtisanUpdateArgs['data'] = {}
+
+        if (action == 'archive' || action == 'unarchive')
+            build = { archivedAt: action == 'archive' ? new Date() : null }
+        else if (action == 'activate' || action == 'deactivate')
+            build = { isActive: action == 'archive' }
+
+        if (action === 'delete') {
+            await prisma.artisan.deleteMany({
+                where: { id: { in: ids } }
+            });
+        } else {
+            ({ count } = await prisma.artisan.updateMany({
+                data: build,
+                where: { id: { in: ids } }
+            }));
+        }
+
+        Resource(req, res, {
+            data: await prisma.artisan.findMany({
+                where: { id: { in: ids } }
+            })
+        })
+            .json()
+            .status(202)
+            .additional({
+                status: 'success',
+                message: `${count} artisan(s) have been ${action}d.`,
                 code: 202,
             });
     }
