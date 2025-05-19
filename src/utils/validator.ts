@@ -71,7 +71,7 @@ const validator = <X extends InitialRules, A extends boolean = false> (
 ): InferInput<X, A> => {
 
     const castValue = (value: any, fieldRules: string[]): any => {
-        if (fieldRules.includes('boolean')) {
+        if (fieldRules.includes('boolean') && value !== undefined) {
             return ['1', 1, true, 'true'].includes(value) ? true : false;
         }
         if (fieldRules.includes('integer') || fieldRules.includes('numeric')) {
