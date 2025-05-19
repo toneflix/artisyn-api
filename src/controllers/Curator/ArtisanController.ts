@@ -230,7 +230,7 @@ export default class extends BaseController {
             .status(202)
             .additional({
                 status: 'success',
-                message: `Artisan ${!isActive ? 'de' : ''}activated successfully`,
+                message: `Artisan ${!isActive ? 'de' : ''}activated successfully.`,
                 code: 202,
             });
     }
@@ -242,23 +242,38 @@ export default class extends BaseController {
      * @param res 
      */
     delete = async (req: Request, res: Response) => {
-        await prisma.artisan.delete({
-            where: {
-                id: req.params.id || '-',
-                curator: {
-                    id: req.user?.id
-                }
-            }
-        })
+        const { archive } = this.validate(req, {
+            archive: 'nullable|boolean',
+        });
 
-        Resource(req, res, {
-            data: {},
-        })
+        let data = {}
+        if (archive) {
+            data = await prisma.artisan.update({
+                data: { archivedAt: new Date() },
+                where: {
+                    id: req.params.id || '-',
+                    curator: {
+                        id: req.user?.id
+                    }
+                },
+            })
+        } else {
+            await prisma.artisan.delete({
+                where: {
+                    id: req.params.id || '-',
+                    curator: {
+                        id: req.user?.id
+                    }
+                }
+            })
+        }
+
+        Resource(req, res, { data })
             .json()
             .status(202)
             .additional({
                 status: 'success',
-                message: 'artisan deleted successfully',
+                message: `Artisan ${archive ? 'archived' : 'deleted'} successfully.`,
                 code: 202,
             });
     }

@@ -171,6 +171,7 @@ model Artisan {
   isVerified    Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  archivedAt    DateTime?
 
   // Relations
   curator     User         @relation(fields: [curatorId], references: [id], onDelete: Cascade)
