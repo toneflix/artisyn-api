@@ -227,37 +227,6 @@ export default class extends BaseController {
     }
 
     /**
-     * Set the activation status of a specific resource in the database
-     * 
-     * @param req 
-     * @param res 
-     */
-    activation = async (req: Request, res: Response) => {
-        const { active: isActive } = this.validate(req, {
-            active: 'required|boolean',
-        });
-
-        const data = await prisma.artisan.update({
-            data: { isActive },
-            where: {
-                id: req.params.id || '-',
-                curator: {
-                    id: req.user?.id
-                }
-            },
-        })
-
-        Resource(req, res, { data })
-            .json()
-            .status(202)
-            .additional({
-                status: 'success',
-                message: `Artisan ${!isActive ? 'de' : ''}activated successfully.`,
-                code: 202,
-            });
-    }
-
-    /**
      * Delete a specific resource from the database
      * 
      * @param req 
