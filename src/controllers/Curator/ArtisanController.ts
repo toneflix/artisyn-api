@@ -42,24 +42,30 @@ export default class extends BaseController {
         const { filter, filters: filtersJson, filterBy }: { filter: string, filterBy: string, filters: string } = validate(req.query, {
             filter: `nullable|required_with:filterBy|string${_in}`,
             filters: `nullable|json`,
-            filterBy: ['nullable', 'string', 'in:type,isVerified,category,country,state,city']
+            filterBy: ['nullable', 'string', 'in:type,archived,isVerified,category,country,state,city']
         })
+
+        const defaultQuery = {
+            archivedAt: filterBy === 'archived' && filter === 'true' ? { not: null } : null,
+        }
 
         // Build the filter query
         const filters = (filterBy?: string, value?: string) => {
             value ??= filter
-            if (!value) return {};
+            if (!value) return defaultQuery;
             if (filterBy === 'priceRange') {
                 const PRICE_RANGE_REGEX = /^\d{1,3}(,\d{3})*(\.\d{1,2})?-\d{1,3}(,\d{3})*(\.\d{1,2})?$/;
 
-                if (!PRICE_RANGE_REGEX.test(value)) return {};
+                if (!PRICE_RANGE_REGEX.test(value)) return defaultQuery;
                 const [gteStr, lteStr] = value.split('-');
                 const gte = parseFloat(gteStr.replace(/,/g, '')); // Remove commas
                 const lte = parseFloat(lteStr.replace(/,/g, '')); // Remove commas
-                if (isNaN(gte) || isNaN(lte) || gte > lte) return {};
+                if (isNaN(gte) || isNaN(lte) || gte > lte) return defaultQuery;
                 return { priceRange: { gte, lte } };
             }
+
             type QM = Prisma.QueryMode
+
             return {
                 type: { type: <ArtisanType>value },
                 isVerified: { isVerified: value === 'true' },
@@ -67,7 +73,7 @@ export default class extends BaseController {
                 country: { location: { country: { equals: <string>value, mode: <QM>'insensitive' } } },
                 state: { location: { state: { equals: <string>value, mode: <QM>'insensitive' } } },
                 city: { location: { city: { equals: <string>value, mode: <QM>'insensitive' } } },
-            }[filterBy ?? 'none'] ?? {};
+            }[filterBy ?? 'none'] ?? defaultQuery;
         };
 
         const filterArgs = filters(filterBy)
@@ -88,7 +94,7 @@ export default class extends BaseController {
             curator: {
                 id: req.user?.id,
             },
-            ...filters(filterBy),
+            ...filterArgs,
             AND: filterArgsList
         })
 
