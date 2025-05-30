@@ -12,6 +12,7 @@ Artisyn is a decentralised protocol built on Starknet that connects local artisa
 - 📡 **[Backend (API) (Current)](https://github.com/toneflix/artisyn-api)**
 - 📝 [Smart Contracts](https://github.com/toneflix/artisyn-contracts)
 - 📚 [Fork/Clone API Documentation](https://artisyn.apidog.io)
+- [![Telegram](https://core.telegram.org/img/favicon-16x16.png) Telegram Channel](http://t.me/@artisynOD)
 
 ## Documentation
 
