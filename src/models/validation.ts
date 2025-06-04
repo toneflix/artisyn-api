@@ -291,3 +291,18 @@ export const searchValidation = {
     query('limit').optional().isInt({ min: 1, max: 20 }).withMessage('Limit must be between 1 and 20'),
   ],
 };
+
+// User profile validation stubs
+export const validateUserProfile = [
+  body('firstName').isString().notEmpty(),
+  body('lastName').isString().notEmpty(),
+  // Add more validation as needed
+];
+
+export const validatePreferences = [
+  body('preferences').isObject(),
+];
+
+export const validatePrivacySettings = [
+  body('privacySettings').isObject(),
+];

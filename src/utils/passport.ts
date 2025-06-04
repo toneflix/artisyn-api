@@ -43,10 +43,17 @@ export const googleStrategy = () => {
 }
 
 export const facebookStrategy = () => {
+    const clientID = env('FACEBOOK_CLIENT_ID');
+    const clientSecret = env('FACEBOOK_CLIENT_SECRET');
+    const callbackURL = env('FACEBOOK_CALLBACK');
+    if (!clientID || !clientSecret) {
+        // Skip Facebook strategy if not configured
+        return null;
+    }
     return new FacebookStrategy({
-        clientID: env('FACEBOOK_CLIENT_ID'),
-        clientSecret: env('FACEBOOK_CLIENT_SECRET'),
-        callbackURL: env('FACEBOOK_CALLBACK'),
+        clientID,
+        clientSecret,
+        callbackURL,
         profileFields: ['id', 'displayName', 'photos', 'email'],
     },
         async function (accessToken, refreshToken, profile, cb) {

@@ -1,5 +1,6 @@
 import CategoryController from 'src/controllers/CategoryController';
 import { Router } from 'express';
+import userProfileRoutes from './api/__userProfile';
 
 const router = Router();
 
@@ -17,5 +18,6 @@ router.get('/', (req, res) => {
 
 router.get('/categories', new CategoryController().index);
 router.get('/categories/:id', new CategoryController().show);
+router.use(userProfileRoutes);
 
 export default router;
