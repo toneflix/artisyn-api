@@ -42,6 +42,9 @@ export interface IUser {
   locationId: string | null;
   emailVerifiedAt: Date | string | null;
   emailVerificationCode: string | null;
+  preferences?: Record<string, any>;
+  privacySettings?: Record<string, any>;
+  profileCompletion: number;
 
   // Relations
   curator: ICurator | null;

@@ -21,6 +21,9 @@ export default class extends JsonResource {
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
             locationId: this.locationId,
+            preferences: this.preferences,
+            privacySettings: this.privacySettings,
+            profileCompletion: this.profileCompletion,
         }
     }
 }
