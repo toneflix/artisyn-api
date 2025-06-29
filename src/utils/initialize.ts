@@ -24,7 +24,8 @@ export const initialize = (app: Express) => {
 
     // Passport
     passport.use(googleStrategy())
-    passport.use(facebookStrategy())
+    const fbStrategy = facebookStrategy();
+    if (fbStrategy) passport.use(fbStrategy);
 
     // Initialize 
     app.use(passport.initialize());
