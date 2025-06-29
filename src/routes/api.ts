@@ -1,5 +1,6 @@
 import CategoryController from 'src/controllers/CategoryController';
 import { Router } from 'express';
+import activityLogsRouter from './api/activity-logs';
 
 const router = Router();
 
@@ -18,4 +19,7 @@ router.get('/', (req, res) => {
 router.get('/categories', new CategoryController().index);
 router.get('/categories/:id', new CategoryController().show);
 
-export default router;
+export default function registerApiRoutes(app: any) {
+  app.use('/api', router);
+  app.use('/api', activityLogsRouter); // Register activity logs API
+}
