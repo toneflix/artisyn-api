@@ -9,7 +9,6 @@ import logger from 'pino-http';
 import methodOverride from 'method-override';
 import passport from 'passport';
 import path from 'path';
-import { activityLogger } from '../middleware/activityLogger';
 
 export const initialize = (app: Express) => {
     // Parse application/x-www-form-urlencoded (for non-multipart forms)
@@ -37,7 +36,4 @@ export const initialize = (app: Express) => {
     if (env('NODE_ENV') !== 'test') {
         app.use(logger())
     }
-
-    // Activity Logger
-    app.use(activityLogger); // Register activity logger globally
 }
