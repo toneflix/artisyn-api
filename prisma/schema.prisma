@@ -266,25 +266,3 @@ model Tip {
   @@index([status])
   @@index([txHash])
 }
-
-// Activity log model for tracking user actions
-model ActivityLog {
-  id          String   @id @default(uuid())
-  userId      String?  // Nullable for anonymous actions
-  action      String   // e.g., 'LOGIN', 'CREATE_ARTISAN', etc.
-  targetType  String?  // e.g., 'User', 'Artisan', etc.
-  targetId    String?  // ID of the target entity
-  metadata    Json?    // Additional structured data
-  ipAddress   String?
-  userAgent   String?
-  anonymized  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-
-  // Relations
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@index([userId])
-  @@index([action])
-  @@index([createdAt])
-  @@index([anonymized])
-}
